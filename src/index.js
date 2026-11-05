@@ -36,10 +36,42 @@ async function meteo(request, ctx) {
   return out;
 }
 
+// Inoltra le richieste del modulo contatti a FormSubmit, che le manda via email al negozio.
+// Passare dal Worker evita i blocchi del browser verso siti esterni.
+async function contatto(request) {
+  if (request.method !== "POST") return Response.json({ success: "false", message: "Metodo non consentito" }, { status: 405 });
+  let data;
+  try {
+    data = await request.json();
+  } catch {
+    return Response.json({ success: "false", message: "Richiesta non valida" }, { status: 400 });
+  }
+  const to = String(data.to || "").trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) {
+    return Response.json({ success: "false", message: "Email del negozio non valida" }, { status: 400 });
+  }
+  delete data.to;
+  const origin = new URL(request.url).origin;
+  const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(to)}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json", Origin: origin, Referer: origin + "/" },
+    body: JSON.stringify(data),
+  });
+  const text = await res.text();
+  let out;
+  try {
+    out = JSON.parse(text);
+  } catch {
+    out = { success: "false", message: `Il servizio email ha risposto ${res.status}` };
+  }
+  return Response.json(out, { status: res.ok ? 200 : 502 });
+}
+
 export default {
   async fetch(request, env, ctx) {
     const { pathname } = new URL(request.url);
     if (pathname === "/api/meteo") return meteo(request, ctx);
+    if (pathname === "/api/contatto") return contatto(request);
     return env.ASSETS.fetch(request);
   },
 };
