@@ -318,11 +318,13 @@ function render(){
   if(!v("n")||!v("t")){$("fm").textContent="Inserisci almeno il nome e un recapito (telefono o email).";return}
   $("inv").disabled=true;$("fm").textContent="Invio in corso…";
   try{var fd=new FormData();fd.append("access_key",CFG.chiave);fd.append("subject","Nuova richiesta dal sito – "+v("r"));fd.append("from_name",CFG.ditta);
-   fd.append("Nome",v("n"));fd.append("Contatto",v("t"));fd.append("Richiesta",v("r"));fd.append("Messaggio",v("m"));
-   var res=await fetch("https://api.web3forms.com/submit",{method:"POST",body:fd});var j=await res.json();
-   if(!j.success)throw new Error("x");
+   fd.append("Nome",v("n"));fd.append("Contatto",v("t"));if(/@/.test(v("t")))fd.append("email",v("t"));fd.append("Richiesta",v("r"));fd.append("Messaggio",v("m"));
+   var res;try{res=await fetch("https://api.web3forms.com/submit",{method:"POST",body:fd,headers:{Accept:"application/json"}})}catch(ne){var er=new Error("rete");er.net=true;throw er}
+   var j={};try{j=await res.json()}catch(pe){}
+   if(!res.ok||!j.success){var e2=new Error(j.message||("errore "+res.status));throw e2}
    $("fm").textContent="Richiesta inviata! Ti ricontatteremo al più presto.";["n","t","m"].forEach(function(i){$(i).value=""})}
-  catch(e){$("fm").textContent="Invio non riuscito. Scrivici su WhatsApp o chiama il "+CFG.telefono+"."}
+  catch(e){var anteprima=/claude|claudeusercontent/.test(location.hostname)||location.protocol==="file:";
+   $("fm").textContent=(e&&e.net&&anteprima)?"Da questa anteprima l’invio non è possibile: il modulo funziona sul sito pubblicato.":"Invio non riuscito"+(e&&e.message&&!e.net?" ("+e.message+")":"")+". Scrivici su WhatsApp o chiama il "+CFG.telefono+"."}
   $("inv").disabled=false})}else $("inv").style.display="none";
 }
 function build(c){
