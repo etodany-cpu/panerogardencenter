@@ -1,0 +1,9 @@
+{
+  // Sito statico di Panero Garden Center pubblicato come Worker con file statici
+  "name": "panerogardencenter",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./public",
+    "not_found_handling": "single-page-application"
+  }
+}
