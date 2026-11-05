@@ -211,6 +211,32 @@ header{background:color-mix(in srgb,var(--bg) 92%,transparent);border-bottom-col
 .wxbar{border-bottom-color:var(--border)}
 .price,.info b{color:color-mix(in srgb,var(--accent) 88%,var(--fg))}
 .wok{background:color-mix(in srgb,var(--base) 85%,#000)}
+
+/* ===== Icone colorate ===== */
+:root{--c1a:#7ed957;--c1b:#2e9e4f;--c2a:#7cc8ff;--c2b:#2b7fd8;--c3a:#ffd36b;--c3b:#f39a12;--c4a:#ffa58a;--c4b:#e8573a;--c5a:#c6a6ff;--c5b:#7a4fd6;--c6a:#77e0d0;--c6b:#14998a}
+.grid>.card:nth-child(6n+1){--ia:var(--c1a);--ib:var(--c1b)}
+.grid>.card:nth-child(6n+2){--ia:var(--c2a);--ib:var(--c2b)}
+.grid>.card:nth-child(6n+3){--ia:var(--c3a);--ib:var(--c3b)}
+.grid>.card:nth-child(6n+4){--ia:var(--c4a);--ib:var(--c4b)}
+.grid>.card:nth-child(6n+5){--ia:var(--c5a);--ib:var(--c5b)}
+.grid>.card:nth-child(6n+6){--ia:var(--c6a);--ib:var(--c6b)}
+.ico{width:56px;height:56px;border-radius:18px;font-size:1.75rem;background:linear-gradient(140deg,var(--ia,var(--c1a)),var(--ib,var(--c1b)));box-shadow:0 10px 20px -10px var(--ib,var(--c1b)),inset 0 1px 0 rgba(255,255,255,.45);text-shadow:0 2px 4px rgba(0,0,0,.18)}
+.step::before{background:linear-gradient(140deg,var(--ia,var(--c1a)),var(--ib,var(--c1b)));box-shadow:0 8px 16px -8px var(--ib,var(--c1b));text-shadow:0 1px 2px rgba(0,0,0,.25)}
+.steps .card::after{background:linear-gradient(90deg,var(--ia),var(--ib))}
+.pimg:not(.ph){background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--ia) 45%,var(--card)),color-mix(in srgb,var(--ib) 22%,var(--card)) 78%);font-size:3rem}
+.badges .ck{display:inline-grid;place-items:center;width:20px;height:20px;margin-right:7px;border-radius:50%;font-style:normal;font-size:.72rem;color:#123018;background:linear-gradient(140deg,#d4f58a,#7ed957)}
+.badges span:nth-child(3n+2) .ck{background:linear-gradient(140deg,#c9ecff,#7cc8ff)}
+.badges span:nth-child(3n+3) .ck{background:linear-gradient(140deg,#ffe9a8,#ffc94d)}
+.wday .wi{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:linear-gradient(140deg,#e6f4ff,#bfe3ff)}
+.wday:nth-child(odd) .wi{background:linear-gradient(140deg,#fff3cf,#ffe08a)}
+.mcats li:nth-child(4n+1){background:rgba(126,217,87,.22);border-color:rgba(126,217,87,.45)}
+.mcats li:nth-child(4n+2){background:rgba(124,200,255,.2);border-color:rgba(124,200,255,.45)}
+.mcats li:nth-child(4n+3){background:rgba(255,211,107,.2);border-color:rgba(255,211,107,.45)}
+.mcats li:nth-child(4n+4){background:rgba(198,166,255,.2);border-color:rgba(198,166,255,.45)}
+.info b::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;background:linear-gradient(140deg,var(--c1a),var(--c1b))}
+.info p:nth-child(2) b::before{background:linear-gradient(140deg,var(--c2a),var(--c2b))}
+.info p:nth-child(3) b::before{background:linear-gradient(140deg,var(--c4a),var(--c4b))}
+.info p:nth-child(4) b::before{background:linear-gradient(140deg,var(--c3a),var(--c3b))}
 </style></head><body><div id="root"></div><template id="tpl"><header><div class="wrap"><a class="logo" href="#top">🌱 {{ditta}}</a><nav><a class="h" href="#servizi">Servizi</a><a class="h" href="#riparazioni">Riparazioni</a><a class="h" href="#perche">Perché noi</a><a class="h" href="#marchi">Marchi</a><a class="h" href="#catalogo">Catalogo</a><a class="h" href="#recensioni">Recensioni</a><a href="#contatti">Contatti</a></nav></div></header>
 <main id="top">
 <div class="hero"><div class="wrap"><div><h1>{{titolo1}} <span>{{titolo2}}.</span></h1><p class="lead">{{intro}}</p>
@@ -248,7 +274,7 @@ function render(){
  document.documentElement.style.setProperty("--base",CFG.colore||"#2e7d32");
  document.title=CFG.ditta+" – "+CFG.footer;
  $("root").innerHTML=$("tpl").innerHTML.replace(/\{\{(\w+)\}\}/g,function(_,k){return k==="foto"?CFG.foto:br(CFG[k])});
- fill("vant",CFG.vantaggi,function(x){return "<span>✔ "+esc(x.t)+"</span>"});
+ fill("vant",CFG.vantaggi,function(x){return '<span><i class="ck" aria-hidden="true">✔</i>'+esc(x.t)+"</span>"});
  fill("g-serv",CFG.servizi,card);fill("g-perche",CFG.perche,card);
  fill("g-passi",CFG.passi,function(x){return '<div class="card"><span class="step"></span><h3>'+esc(x.t)+'</h3><p>'+esc(x.d)+'</p></div>'});
  fill("g-rec",CFG.recensioni,function(x){return '<div class="card"><div class="stars">★★★★★</div><h3>'+esc(x.t)+'</h3><p>'+esc(x.d)+'</p><p class="who">'+esc(x.w)+'</p></div>'});
