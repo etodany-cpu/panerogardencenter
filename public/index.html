@@ -190,6 +190,27 @@ footer::before{content:"";position:absolute;left:0;right:0;top:-1px;height:40px;
 .map svg{height:120px}
 .map div{padding:10px 14px}
 @media (prefers-reduced-motion:reduce){.tabs button{transition:none}}
+
+/* ===== Contrasto migliorato con tema chiaro ===== */
+:root{--bg:#edf3e8;--card:#fff;--border:#c6d6bd;--muted:#3b4e43;--fg:#14231a;--mist:#ffffff;
+ --shadow:0 1px 2px rgba(20,35,26,.07),0 10px 26px -14px rgba(20,35,26,.28);
+ --grad:linear-gradient(135deg,color-mix(in srgb,var(--base) 82%,#000),var(--base))}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1610;--card:#17241c;--border:#2c4233;--muted:#a9bcae;--fg:#e8f1e9;--mist:#132019;--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 26px -14px rgba(0,0,0,.6)}}
+:root[data-theme="dark"]{--bg:#0d1610;--card:#17241c;--border:#2c4233;--muted:#a9bcae;--fg:#e8f1e9;--mist:#132019;--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 26px -14px rgba(0,0,0,.6)}
+section.alt{background:linear-gradient(180deg,var(--mist),color-mix(in srgb,var(--mist) 60%,var(--bg)))}
+.card,.rate,.wday,.chip:not(.on),.map{box-shadow:var(--shadow)}
+.card{border-color:var(--border)}
+section.alt .card{border-color:color-mix(in srgb,var(--border) 80%,var(--card))}
+.sub{color:var(--muted)}
+.card p{color:var(--muted)}
+.mlist button{color:color-mix(in srgb,var(--fg) 58%,var(--bg))}
+.mlist button[aria-selected="true"],.mlist button:hover{color:var(--fg)}
+.pimg{background:radial-gradient(circle at 50% 40%,var(--card),color-mix(in srgb,var(--base) 10%,var(--card)) 80%)}
+.chip{border-color:var(--border)}
+header{background:color-mix(in srgb,var(--bg) 92%,transparent);border-bottom-color:var(--border)}
+.wxbar{border-bottom-color:var(--border)}
+.price,.info b{color:color-mix(in srgb,var(--accent) 88%,var(--fg))}
+.wok{background:color-mix(in srgb,var(--base) 85%,#000)}
 </style></head><body><div id="root"></div><template id="tpl"><header><div class="wrap"><a class="logo" href="#top">🌱 {{ditta}}</a><nav><a class="h" href="#servizi">Servizi</a><a class="h" href="#riparazioni">Riparazioni</a><a class="h" href="#perche">Perché noi</a><a class="h" href="#marchi">Marchi</a><a class="h" href="#catalogo">Catalogo</a><a class="h" href="#recensioni">Recensioni</a><a href="#contatti">Contatti</a></nav></div></header>
 <main id="top">
 <div class="hero"><div class="wrap"><div><h1>{{titolo1}} <span>{{titolo2}}.</span></h1><p class="lead">{{intro}}</p>
