@@ -291,7 +291,7 @@ header .wrap{height:68px}
 <section id="perche" class="alt"><div class="wrap"><h2>{{tPerche}}</h2><p class="sub">{{sPerche}}</p><div class="grid" id="g-perche"></div></div></section>
 <section id="marchi"><div class="wrap"><h2>{{tMarchi}}</h2><p class="sub">{{sMarchi}}</p><div class="mwrap"><div class="mlist" role="tablist" aria-label="Marchi" aria-orientation="vertical" id="mtabs"></div><div class="mpanel" role="tabpanel" id="mpanel"></div></div></div></section>
 <section id="catalogo"><div class="wrap"><h2>{{tCatalogo}}</h2><p class="sub">{{sCatalogo}}</p>
-<div class="chips" id="chips"><button class="chip on" data-f="all" type="button">Tutti</button><button class="chip" data-f="s" type="button">{{fs}}</button><button class="chip" data-f="m" type="button">{{fm}}</button><button class="chip" data-f="l" type="button">{{fl}}</button></div>
+<div class="chips" id="chips"><button class="chip on" data-f="all" type="button">Tutti</button><button class="chip" data-f="s" type="button">{{fs}}</button><button class="chip" data-f="m" type="button">{{fm}}</button><button class="chip" data-f="l" type="button">{{fl}}</button><button class="chip" data-f="b:kress" type="button">Robot Kress</button><button class="chip" data-f="b:honda" type="button">Robot Honda</button></div>
 <div class="grid" id="prodotti"></div></div></section>
 <section id="recensioni" class="alt"><div class="wrap"><h2>{{tRec}}</h2><p class="sub">{{sRec}}</p><div class="rate" id="rate"><div class="stars big">★★★★★</div><div><b>{{gRating}} su 5</b><span>{{gCount}} recensioni su Google</span></div></div><p class="note">{{gNota}}</p><div class="grid" id="g-rec"></div><p style="margin:22px 0 0;display:flex;gap:10px;flex-wrap:wrap"><a class="btn" id="gr" target="_blank" rel="noopener">Leggi le recensioni su Google</a><a class="btn o" id="gw" target="_blank" rel="noopener">Lascia una recensione</a></p></div></section>
 <section id="contatti"><div class="wrap contact"><div><h2>{{tContatti}}</h2><p class="sub">{{sContatti}}</p>
@@ -310,7 +310,7 @@ var esc=function(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){re
 var br=function(s){return esc(s).replace(/\n/g,"<br>")};
 var fill=function(id,a,fn){$(id).innerHTML=a.map(fn).join("")};
 var card=function(x){return '<div class="card"><div class="ico">'+esc(x.i)+'</div><h3>'+esc(x.t)+'</h3><p>'+esc(x.d)+'</p></div>'};
-function show(f){$("prodotti").innerHTML=CFG.prodotti.filter(function(x){return f==="all"||x.s===f}).map(function(x){
+function show(f){$("prodotti").innerHTML=CFG.prodotti.filter(function(x){return f==="all"||(f.indexOf("b:")===0?String(x.n||"").toLowerCase().indexOf(f.slice(2))===0:x.s===f)}).map(function(x){
  return '<div class="card">'+(x.f||String(x.i)==="1"?'<div class="pimg ph"><img src="'+(x.f||CFG.foto)+'" alt="'+esc(x.n)+'"></div>':'<div class="pimg">🤖</div>')+'<h3>'+esc(x.n)+'</h3><p>'+esc(x.d)+'</p><p><b>'+esc(x.m)+'</b></p><div class="price">'+esc(x.p)+'</div><button class="btn" type="button" data-m="'+esc(x.n)+'">Chiedi informazioni</button></div>'}).join("")}
 function render(){
  document.documentElement.style.setProperty("--base",CFG.colore||"#2e7d32");
