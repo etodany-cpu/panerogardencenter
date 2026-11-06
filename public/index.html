@@ -280,7 +280,17 @@ header .wrap{height:68px}
 :root[data-theme="dark"] .logoimg.lg-dk{display:block}
 :root[data-theme="dark"] .logoimg.lg-lt{display:none}
 @media(max-width:480px){.logoimg{height:42px}}
-</style></head><body><div id="root"></div><template id="tpl"><header><div class="wrap"><a class="logo" href="#top"><img class="logoimg lg-dk" src="{{logo}}" alt="Logo Panerogarden" width="76" height="50"><img class="logoimg lg-lt" id="logolt" src="{{logo}}" alt="Logo Panerogarden" width="76" height="50"><span>{{ditta}}</span></a><nav><a class="h" href="#servizi">Servizi</a><a class="h" href="#riparazioni">Riparazioni</a><a class="h" href="#perche">Perché noi</a><a class="h" href="#marchi">Marchi</a><a class="h" href="#catalogo">Catalogo</a><a class="h" href="#recensioni">Recensioni</a><a href="#contatti">Contatti</a></nav></div></header>
+/* ===== Ricerca prodotti ===== */
+.sbar{background:linear-gradient(180deg,color-mix(in srgb,var(--base) 10%,var(--bg)),var(--bg));border-bottom:1px solid var(--border);padding:14px 0}
+.sbox{display:flex;align-items:center;gap:8px;max-width:760px;margin:0 auto;background:var(--card);border:2px solid var(--base);border-radius:999px;padding:5px 5px 5px 18px;box-shadow:var(--shadow)}
+.sbox .sico{font-size:1.15rem;line-height:1}
+.sbox input{flex:1;min-width:0;border:0;background:transparent;padding:10px 4px;font-size:1.05rem;color:var(--fg)}
+.sbox input:focus{outline:none;box-shadow:none}
+.sbox:focus-within{box-shadow:0 0 0 4px color-mix(in srgb,var(--base) 25%,transparent),var(--shadow)}
+.sbox .btn{padding:10px 22px;font-size:1rem;flex:none}
+#qinfo{margin:-6px 0 18px;font-weight:600;color:var(--fg)}
+@media(max-width:480px){.sbox{padding-left:14px}.sbox input{font-size:1rem}.sbox .btn{padding:9px 14px}}
+</style></head><body><div id="root"></div><template id="tpl"><header><div class="wrap"><a class="logo" href="#top"><img class="logoimg lg-dk" src="{{logo}}" alt="Logo Panerogarden" width="76" height="50"><img class="logoimg lg-lt" id="logolt" src="{{logo}}" alt="Logo Panerogarden" width="76" height="50"><span>{{ditta}}</span></a><nav><a class="h" href="#servizi">Servizi</a><a class="h" href="#riparazioni">Riparazioni</a><a class="h" href="#perche">Perché noi</a><a class="h" href="#marchi">Marchi</a><a class="h" href="#catalogo">Catalogo</a><a class="h" href="#recensioni">Recensioni</a><a href="#contatti">Contatti</a></nav></div></header><div class="sbar"><div class="wrap"><form class="sbox" id="sform" role="search" action="#catalogo"><span class="sico" aria-hidden="true">🔍</span><input id="q" type="search" placeholder="Cerca un prodotto, es. KR250 o motosega" aria-label="Cerca nel catalogo" autocomplete="off" enterkeyhint="search"><button class="btn" type="submit">Cerca</button></form></div></div>
 <main id="top">
 <div class="hero"><div class="wrap"><div><h1>{{titolo1}} <span>{{titolo2}}.</span></h1><p class="lead">{{intro}}</p>
 <div class="cta"><a class="btn" href="#contatti">Richiedi un preventivo</a><a class="btn o" href="#servizi">Scopri i servizi</a></div><div class="badges" id="vant"></div></div>
@@ -292,7 +302,7 @@ header .wrap{height:68px}
 <section id="marchi"><div class="wrap"><h2>{{tMarchi}}</h2><p class="sub">{{sMarchi}}</p><div class="mwrap"><div class="mlist" role="tablist" aria-label="Marchi" aria-orientation="vertical" id="mtabs"></div><div class="mpanel" role="tabpanel" id="mpanel"></div></div></div></section>
 <section id="catalogo"><div class="wrap"><h2>{{tCatalogo}}</h2><p class="sub">{{sCatalogo}}</p>
 <div class="chips" id="chips"><button class="chip on" data-f="all" type="button">Tutti</button><button class="chip" data-f="s" type="button">{{fs}}</button><button class="chip" data-f="m" type="button">{{fm}}</button><button class="chip" data-f="l" type="button">{{fl}}</button><button class="chip" data-f="b:kress" type="button">Robot Kress</button><button class="chip" data-f="b:honda" type="button">Robot Honda</button><button class="chip" data-f="b:k40" type="button">Kress 40V</button><button class="chip" data-f="b:k60" type="button">Kress 60V Professional</button><button class="chip" data-f="b:hbat" type="button">Honda a batteria</button><button class="chip" data-f="b:hmot" type="button">Honda a motore</button></div>
-<div class="grid" id="prodotti"></div></div></section>
+<p id="qinfo" hidden></p><div class="grid" id="prodotti"></div></div></section>
 <section id="recensioni" class="alt"><div class="wrap"><h2>{{tRec}}</h2><p class="sub">{{sRec}}</p><div class="rate" id="rate"><div class="stars big">★★★★★</div><div><b>{{gRating}} su 5</b><span>{{gCount}} recensioni su Google</span></div></div><p class="note">{{gNota}}</p><div class="grid" id="g-rec"></div><p style="margin:22px 0 0;display:flex;gap:10px;flex-wrap:wrap"><a class="btn" id="gr" target="_blank" rel="noopener">Leggi le recensioni su Google</a><a class="btn o" id="gw" target="_blank" rel="noopener">Lascia una recensione</a></p></div></section>
 <section id="contatti"><div class="wrap contact"><div><h2>{{tContatti}}</h2><p class="sub">{{sContatti}}</p>
 <div class="info"><p><b>Telefono</b>{{telefono}}</p><p><b>Email</b>{{email}}</p><p><b>Indirizzo</b>{{indirizzo}}</p><p><b>Orari</b>{{orari}}</p></div>
@@ -310,7 +320,10 @@ var esc=function(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){re
 var br=function(s){return esc(s).replace(/\n/g,"<br>")};
 var fill=function(id,a,fn){$(id).innerHTML=a.map(fn).join("")};
 var card=function(x){return '<div class="card"><div class="ico">'+esc(x.i)+'</div><h3>'+esc(x.t)+'</h3><p>'+esc(x.d)+'</p></div>'};
-function show(f){$("prodotti").innerHTML=CFG.prodotti.filter(function(x){return f==="all"||(f.indexOf("b:")===0?String(x.g||String(x.n||"").split(" ")[0]).toLowerCase()===f.slice(2):x.s===f)}).map(function(x){
+var Q="",CUR="all";var norm=function(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")};
+function show(f){CUR=f;var ws=norm(Q).split(/\s+/).filter(Boolean);var L=CFG.prodotti.filter(function(x){return f==="all"||(f.indexOf("b:")===0?String(x.g||String(x.n||"").split(" ")[0]).toLowerCase()===f.slice(2):x.s===f)}).filter(function(x){if(!ws.length)return true;var t=norm([x.n,x.d,x.m].join(" ")),t2=t.replace(/[\s.\-]/g,"");return ws.every(function(w){return t.indexOf(w)>=0||t2.indexOf(w.replace(/[.\-]/g,""))>=0})});
+ var qi=$("qinfo");if(qi){qi.hidden=!ws.length;qi.textContent=L.length?(L.length===1?"1 prodotto trovato":L.length+" prodotti trovati")+" per «"+Q.trim()+"»":"Nessun prodotto trovato per «"+Q.trim()+"». Prova con un’altra parola o scrivici: ti aiutiamo noi."}
+ $("prodotti").innerHTML=L.map(function(x){
  return '<div class="card">'+(x.f||String(x.i)==="1"?'<div class="pimg ph"><img src="'+(x.f||CFG.foto)+'" alt="'+esc(x.n)+'"></div>':'<div class="pimg">'+(x.i&&String(x.i)!=="1"?esc(x.i):"🤖")+'</div>')+'<h3>'+esc(x.n)+'</h3><p>'+esc(x.d)+'</p><p><b>'+esc(x.m)+'</b></p><div class="price">'+esc(x.p)+'</div><button class="btn" type="button" data-m="'+esc(x.n)+'">Chiedi informazioni</button></div>'}).join("")}
 function render(){
  document.documentElement.style.setProperty("--base",CFG.colore||"#2e7d32");
@@ -325,6 +338,8 @@ function render(){
  $("gr").href=CFG.gUrl||"#";$("gw").href=CFG.gScrivi||"#";if(!CFG.gRating)$("rate").style.display="none";
  $("m2").href="https://www.google.com/maps/dir/?api=1&destination="+q;
  show("all");
+ $("q").addEventListener("input",function(){Q=this.value;if(Q.trim()){document.querySelectorAll(".chip").forEach(function(c){c.classList.toggle("on",c.getAttribute("data-f")==="all")});CUR="all"}show(CUR)});
+ $("sform").addEventListener("submit",function(e){e.preventDefault();Q=$("q").value;show(CUR);$("catalogo").scrollIntoView({behavior:"smooth"})});
  $("chips").addEventListener("click",function(e){var b=e.target.closest(".chip");if(!b)return;
   document.querySelectorAll(".chip").forEach(function(c){c.classList.toggle("on",c===b)});show(b.getAttribute("data-f"))});
  $("prodotti").addEventListener("click",function(e){var b=e.target.closest("[data-m]");if(!b)return;
