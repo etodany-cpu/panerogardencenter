@@ -295,7 +295,20 @@ header .wrap{height:68px}
 #prodotti .card{overflow:hidden}
 #prodotti .card>.pimg.ph{margin:-26px -26px 16px;height:auto;aspect-ratio:1/1;border-radius:0;background:#000;overflow:hidden;display:block}
 #prodotti .card>.pimg.ph img{display:block;width:100%;height:100%;object-fit:cover}
-</style></head><body><div id="root"></div><template id="tpl"><header><div class="wrap"><a class="logo" href="#top"><img class="logoimg lg-dk" src="{{logo}}" alt="Logo Panerogarden" width="76" height="50"><img class="logoimg lg-lt" id="logolt" src="{{logo}}" alt="Logo Panerogarden" width="76" height="50"><span>{{ditta}}</span></a><nav><a class="h" href="#servizi">Servizi</a><a class="h" href="#riparazioni">Riparazioni</a><a class="h" href="#perche">Perché noi</a><a class="h" href="#marchi">Marchi</a><a class="h" href="#catalogo">Catalogo</a><a class="h" href="#recensioni">Recensioni</a><a href="#contatti">Contatti</a></nav></div></header><div class="sbar"><div class="wrap"><form class="sbox" id="sform" role="search" action="#catalogo"><span class="sico" aria-hidden="true">🔍</span><input id="q" type="search" placeholder="Cerca un prodotto, es. KR250 o motosega" aria-label="Cerca nel catalogo" autocomplete="off" enterkeyhint="search"><button class="btn" type="submit">Cerca</button></form></div></div>
+
+/* ===== Intestazione: logo e ragione sociale più in evidenza ===== */
+header .wrap{height:84px}
+html{scroll-padding-top:96px}
+.logo{gap:16px}
+.logoimg{height:66px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.18))}
+.lgtx{display:flex;flex-direction:column;gap:3px;padding-left:16px;border-left:3px solid transparent;border-image:linear-gradient(180deg,#b3123f,var(--base)) 1;min-width:0}
+.lgtx b{font-family:var(--fd);font-weight:800;font-size:1.45rem;line-height:1.05;letter-spacing:-.02em;white-space:nowrap;color:color-mix(in srgb,var(--base) 55%,#06140b)}
+.lgtx small{font-size:.8rem;font-weight:600;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lgtx b{color:#fff}}
+:root[data-theme="dark"] .lgtx b{color:#fff}
+@media(max-width:900px){.lgtx b{font-size:1.25rem}}
+@media(max-width:480px){header .wrap{height:68px}.logoimg{height:46px}.logo{gap:9px}.lgtx{padding-left:9px;border-left-width:2px}.lgtx b{font-size:1rem;white-space:normal}.lgtx small{display:none}}
+</style></head><body><div id="root"></div><template id="tpl"><header><div class="wrap"><a class="logo" href="#top"><img class="logoimg lg-dk" src="{{logo}}" alt="Logo Panerogarden" width="76" height="50"><img class="logoimg lg-lt" id="logolt" src="{{logo}}" alt="Logo Panerogarden" width="76" height="50"><span class="lgtx"><b>{{ditta}}</b><small>{{footer}}</small></span></a><nav><a class="h" href="#servizi">Servizi</a><a class="h" href="#riparazioni">Riparazioni</a><a class="h" href="#perche">Perché noi</a><a class="h" href="#marchi">Marchi</a><a class="h" href="#catalogo">Catalogo</a><a class="h" href="#recensioni">Recensioni</a><a href="#contatti">Contatti</a></nav></div></header><div class="sbar"><div class="wrap"><form class="sbox" id="sform" role="search" action="#catalogo"><span class="sico" aria-hidden="true">🔍</span><input id="q" type="search" placeholder="Cerca un prodotto, es. KR250 o motosega" aria-label="Cerca nel catalogo" autocomplete="off" enterkeyhint="search"><button class="btn" type="submit">Cerca</button></form></div></div>
 <main id="top">
 <div class="hero"><div class="wrap"><div><h1>{{titolo1}} <span>{{titolo2}}.</span></h1><p class="lead">{{intro}}</p>
 <div class="cta"><a class="btn" href="#contatti">Richiedi un preventivo</a><a class="btn o" href="#servizi">Scopri i servizi</a></div><div class="badges" id="vant"></div></div>
@@ -431,7 +444,7 @@ function initMappa(){var box=$("mtiles"),wrap=$("mappa");if(!box||!wrap)return;
  draw();var tm;window.addEventListener("resize",function(){clearTimeout(tm);tm=setTimeout(draw,200)})}
 function initLogo(){var lt=$("logolt");if(!lt||!CFG.logo)return;var i=new Image();i.onload=function(){try{
   var c=document.createElement("canvas");c.width=i.naturalWidth;c.height=i.naturalHeight;var g=c.getContext("2d");g.drawImage(i,0,0);
-  var d=g.getImageData(0,0,c.width,c.height),p=d.data,ink=[24,46,31];
+  var d=g.getImageData(0,0,c.width,c.height),p=d.data,ink=[20,40,27];
   for(var k=0;k<p.length;k+=4){var r=p[k],gg=p[k+1],b=p[k+2],mx=Math.max(r,gg,b),mn=Math.min(r,gg,b);
    if(p[k+3]>0&&mn>150&&mx-mn<45){p[k]=ink[0];p[k+1]=ink[1];p[k+2]=ink[2]}}
   g.putImageData(d,0,0);lt.src=c.toDataURL("image/png")}catch(e){}};i.src=CFG.logo}
