@@ -95,6 +95,26 @@ export const PAGINE = {
       ["I prezzi sono indicati?", "Per molti prodotti il prezzo è su richiesta: chiamaci o scrivici e ti facciamo subito un preventivo."],
     ],
   },
+  "/rasaerba-grin": {
+    titolo: "Rasaerba Grin mulching a Ciriè (TO) – vendita e assistenza",
+    h1: "Rasaerba Grin a Ciriè",
+    breve: "Rasaerba Grin",
+    desc: "Rasaerba Grin con mulching brevettato senza sacco: modelli a spinta, semoventi, a batteria 82V e zero-turn ZM. Vendita e assistenza a Ciriè (TO) da Panero Francesco S.N.C.",
+    intro: (c) => [
+      marchio(c, "Grin"),
+      "Con un Grin non raccogli l'erba: la lama brevettata la sminuzza finissima e la lascia sul prato, che resta concimato e più verde. Da noi trovi i modelli a spinta per il giardino di casa, i semoventi e i professionali per i prati grandi e in pendenza, le versioni a batteria 82V e gli zero-turn ZM per le grandi superfici.",
+    ],
+    sezioni: [
+      ["Rasaerba a spinta", gruppo("gsp")],
+      ["Rasaerba semoventi e professionali", gruppo("gse")],
+      ["Zero-turn per grandi superfici", gruppo("gzt")],
+    ],
+    faq: [
+      ["Non serve il sacco di raccolta?", "No: i Grin sono rasaerba mulching. L'erba tagliata viene sminuzzata e resta sul prato come concime naturale, quindi non c'è niente da svuotare."],
+      ["Bisogna tagliare più spesso?", "Con il mulching conviene tagliare con regolarità, togliendo poca erba alla volta: il prato viene più bello e il lavoro è più veloce."],
+      ["Fate assistenza sui Grin?", "Sì, vendiamo i rasaerba Grin e ci occupiamo di tagliandi, affilatura e riparazioni."],
+    ],
+  },
   "/attrezzi-batteria-kress": {
     titolo: "Attrezzi a batteria Kress 40V e 60V a Ciriè (TO)",
     h1: "Attrezzi da giardino a batteria Kress",

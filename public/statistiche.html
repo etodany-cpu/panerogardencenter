@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Statistiche visite – Panero Garden</title>
+<title>Statistiche e richieste – Panero Garden</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
@@ -46,6 +46,12 @@ tr:last-child td{border-bottom:0}
 .mini{height:4px;background:var(--soft);border-radius:2px;margin-top:4px}
 .mini i{display:block;height:100%;background:var(--bar);border-radius:2px}
 .empty{color:var(--muted)}
+.rq{margin-bottom:16px}.badge{display:inline-block;background:#c62828;color:#fff;border-radius:999px;font-size:.8rem;padding:1px 9px;vertical-align:middle;margin-left:6px}
+.req{border-top:1px solid var(--border);padding:12px 0;display:grid;gap:4px}.req:first-child{border-top:0}
+.req.new{border-left:4px solid var(--base);padding-left:12px}
+.req .top{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}.req b{font-size:1.05rem}.req .meta{color:var(--muted);font-size:.88rem}
+.req .msg{white-space:pre-wrap;overflow-wrap:anywhere}.req .acts{display:flex;flex-wrap:wrap;gap:8px}.req .acts a,.req .acts button{font-size:.88rem;padding:6px 12px}
+.req .acts a{border:1px solid var(--border);border-radius:999px;text-decoration:none;color:var(--fg);font-weight:600}
 .note{color:var(--muted);font-size:.88rem;margin-top:20px}
 </style>
 </head>
@@ -65,7 +71,7 @@ tr:last-child td{border-bottom:0}
   <main id="app" hidden>
     <header>
       <div>
-        <h1>Statistiche visite</h1>
+        <h1>Richieste e statistiche</h1>
         <p class="sub" id="periodo"></p>
       </div>
       <div class="per" role="group" aria-label="Periodo">
@@ -77,6 +83,11 @@ tr:last-child td{border-bottom:0}
         <button type="button" id="esci">Esci</button>
       </div>
     </header>
+
+    <section class="box rq">
+      <h2>Richieste dal modulo contatti <span id="rq-n" class="badge" hidden></span></h2>
+      <div id="rq"></div>
+    </section>
 
     <div class="kpi">
       <div class="box"><b id="k-vis">0</b><span>Visite</span></div>
@@ -149,8 +160,26 @@ tr:last-child td{border-bottom:0}
     document.querySelectorAll("[data-g]").forEach(function(b){b.setAttribute("aria-pressed",String(+b.dataset.g===G))});
   }
 
+  async function richieste(){
+    var el=$("rq");
+    try{var r=await fetch("/api/richieste",{headers:{Authorization:"Bearer "+PW},cache:"no-store"});if(!r.ok)throw 0;var L=(await r.json()).richieste||[]}
+    catch(e){el.textContent="Non riesco a caricare le richieste.";return}
+    el.textContent="";var nuove=L.filter(function(x){return !x.letta}).length;$("rq-n").hidden=!nuove;$("rq-n").textContent=nuove+" da leggere";
+    if(!L.length){el.innerHTML='<p class="empty">Ancora nessuna richiesta.</p>';return}
+    L.forEach(function(x){var d=document.createElement("div");d.className="req"+(x.letta?"":" new");
+      var top=document.createElement("div");top.className="top";var b=document.createElement("b");b.textContent=x.nome;top.appendChild(b);
+      var m=document.createElement("span");m.className="meta";m.textContent=x.quando.replace(/^(\d+)-(\d+)-(\d+) /,"$3/$2/$1 ore ")+(x.tipo?" · "+x.tipo:"")+(x.email_inviata?" · email inviata":"");top.appendChild(m);d.appendChild(top);
+      var c=document.createElement("div");c.textContent="Recapito: "+x.contatto;d.appendChild(c);
+      if(x.messaggio){var g=document.createElement("div");g.className="msg";g.textContent=x.messaggio;d.appendChild(g)}
+      var a=document.createElement("div");a.className="acts";var t=String(x.contatto).replace(/[^\d+]/g,"");
+      if(/@/.test(x.contatto)){var e=document.createElement("a");e.href="mailto:"+x.contatto;e.textContent="Rispondi per email";a.appendChild(e)}
+      else if(t.length>=8){var k=document.createElement("a");k.href="tel:"+t;k.textContent="Chiama";a.appendChild(k);var w=document.createElement("a");w.href="https://wa.me/"+(t.indexOf("+")===0?t.slice(1):(t.indexOf("39")===0&&t.length>11?t:"39"+t));w.textContent="WhatsApp";a.appendChild(w)}
+      if(!x.letta){var bt=document.createElement("button");bt.type="button";bt.textContent="Segna come letta";bt.onclick=async function(){bt.disabled=true;await fetch("/api/richieste",{method:"POST",headers:{Authorization:"Bearer "+PW,"Content-Type":"application/json"},body:JSON.stringify({id:x.id})});richieste()};a.appendChild(bt)}
+      d.appendChild(a);el.appendChild(d)});
+  }
+
   async function show(){
-    try{var d=await load();$("login").hidden=true;$("app").hidden=false;store(PW);draw(d)}
+    try{var d=await load();$("login").hidden=true;$("app").hidden=false;store(PW);draw(d);richieste()}
     catch(e){store("");$("app").hidden=true;$("login").hidden=false;$("le").textContent=e.message}
   }
 
