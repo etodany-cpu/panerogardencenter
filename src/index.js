@@ -3,7 +3,7 @@
 // così il browser non deve chiamare direttamente api.met.no e i dati restano in cache.
 
 const MET_URL = "https://api.met.no/weatherapi/locationforecast/2.0/compact";
-const USER_AGENT = "panerogardencenter.etodany.workers.dev github.com/etodany-cpu/panerogardencenter";
+const USER_AGENT = "panerogardencenter.panerogarden.workers.dev github.com/etodany-cpu/panerogardencenter";
 const CACHE_SECONDS = 1800;
 
 async function meteo(request, ctx) {
