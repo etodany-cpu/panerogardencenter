@@ -458,6 +458,8 @@ header .lgtx small{font-size:1rem}
 .chip.on{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 6px 16px -6px color-mix(in srgb,var(--base) 70%,transparent)}
 .cg-all .chip{padding:10px 22px;font-size:.98rem}
 @media(max-width:600px){.cgrp{padding:10px;gap:6px}.cgl{width:100%;justify-content:flex-start;margin:0 0 2px}.chip{padding:7px 13px;font-size:.86rem}}
+
+.mini.auto{z-index:1}
 </style></head><body><div id="root"></div><template id="tpl"><header><canvas class="erba" aria-hidden="true"></canvas><div class="mini" id="mini" tabindex="0" role="img" aria-label="Mini robot rasaerba Kress: trascinalo per tagliare l'erba"><svg viewBox="0 0 60 44" aria-hidden="true"><rect x="7" y="0.5" width="15" height="8" rx="3" fill="#161616"/><rect x="7" y="35.5" width="15" height="8" rx="3" fill="#161616"/><rect x="3" y="5" width="53" height="34" rx="15" fill="#2b2f33"/><path d="M15 9h24a13 13 0 0 1 0 26H15a7 7 0 0 1-7-7V16a7 7 0 0 1 7-7z" fill="#d7262e"/><rect x="51" y="14" width="5" height="16" rx="2.5" fill="#111"/><circle cx="18" cy="22" r="5" fill="#f3f3f3"/><circle cx="18" cy="22" r="3" fill="#d7262e"/><text x="27" y="24.6" font-family="Arial,Helvetica,sans-serif" font-size="7" font-weight="700" fill="#fff" letter-spacing=".4">KRESS</text></svg><span class="hint">Trascinami e taglia l'erba!</span></div><div class="wrap"><button class="hamb" id="hamb" type="button" aria-label="Apri il menu" aria-controls="side" aria-expanded="false"><span></span><span></span><span></span></button><a class="logo" href="#top"><img class="logoimg lg-dk" src="{{logo}}" alt="Logo Panerogarden" width="76" height="50"><img class="logoimg lg-lt" id="logolt" src="{{logo}}" alt="Logo Panerogarden" width="76" height="50"><span class="lgtx"><b>{{ditta}}</b><small>{{footer}}</small></span></a><a class="hcall" id="hcall" href="tel:{{telefono}}" aria-label="Chiama il negozio"><i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg></i><span><small>Chiamaci</small><b>{{telefono}}</b></span></a><nav><a class="h" href="#servizi">Servizi</a><a class="h" href="#riparazioni">Riparazioni</a><a class="h" href="#perche">Perché noi</a><a class="h" href="#marchi">Marchi</a><a class="h" href="#catalogo">Catalogo</a><a class="h" href="#recensioni">Recensioni</a><a href="#contatti">Contatti</a></nav></div></header><aside class="side" id="side" aria-label="Pagine del sito"><nav class="snav"><a class="sl" href="#home" data-pg="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span><b>Home</b><small>Servizi e recensioni</small></span></a><a class="sl" href="#catalogo" data-pg="catalogo"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span><b>Catalogo</b><small>Robot e attrezzi</small></span></a><a class="sl" href="#assistenza" data-pg="assistenza"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8V21h3.2l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg><span><b>Assistenza</b><small>Riparazioni e tagliandi</small></span></a><a class="sl" href="#marchi" data-pg="marchi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="8" cy="8" r="1.6"/></svg><span><b>Marchi</b><small>Kress, Honda, EGO, Grin</small></span></a><a class="sl" href="#contatti" data-pg="contatti"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg><span><b>Contatti</b><small>Preventivi, mappa, orari</small></span></a></nav><div class="sfoot"><a class="btn" href="#contatti">Richiedi un preventivo</a></div></aside><div class="sdim" id="sdim"></div><div class="sbar"><div class="wrap"><form class="sbox" id="sform" role="search" action="#catalogo"><span class="sico" aria-hidden="true">🔍</span><input id="q" type="search" placeholder="Cerca un prodotto, es. KR250 o motosega" aria-label="Cerca nel catalogo" autocomplete="off" enterkeyhint="search"><button class="btn" type="submit">Cerca</button></form></div></div>
 <main id="top">
 <div class="hero"><div class="wrap"><div><h1>{{titolo1}} <span>{{titolo2}}.</span></h1><p class="lead">{{intro}}</p>
@@ -616,7 +618,7 @@ function initZoom(){
   lb.querySelector("img").src=im.src;lb.querySelector("img").alt=im.alt||"";lb.querySelector("p").textContent=im.alt||"";lb.hidden=false;document.body.classList.add("lb-on");lb.querySelector(".lbx").focus()})}
 function initRobot(){
  var hd=document.querySelector("header"),cv=hd&&hd.querySelector(".erba"),r=$("mini");if(!cv||!r||!cv.getContext)return;
- var g=cv.getContext("2d"),tex,W=0,H=0,dpr=1,x=0,y=0,a=0,drag=false,ox=0,oy=0,told=false,used=false;
+ var run=false,g=cv.getContext("2d"),tex,W=0,H=0,dpr=1,x=0,y=0,a=0,drag=false,ox=0,oy=0,told=false,used=false;
  function erba(w,hh){var c=document.createElement("canvas");c.width=w;c.height=hh;var t=c.getContext("2d");
   t.fillStyle="#1f4716";t.fillRect(0,0,w,hh);var n=Math.round(w*hh/9/dpr);
   for(var i=0;i<n;i++){var bx=Math.random()*w,by=Math.random()*(hh+30*dpr),bh=(16+Math.random()*26)*dpr,l=(Math.random()*12-6)*dpr,v=55+Math.random()*75;
@@ -628,19 +630,34 @@ function initRobot(){
  function size(){var w=hd.clientWidth,hh=hd.clientHeight;if(w===W&&hh===H)return;var first=!W;
   if(!first){x=x/W*w;y=y/H*hh}W=w;H=hh;dpr=Math.min(2,window.devicePixelRatio||1);cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);
   tex=erba(cv.width,cv.height);g.globalCompositeOperation="source-over";g.globalAlpha=1;g.drawImage(tex,0,0);
-  if(first){x=W*(W<700?.86:.68);y=H*(W<700?.8:.7)}place()}
+  if(first){x=W*(W<700?.86:.68);y=H*(W<700?.8:.62)}place()}
  function taglia(x0,y0,x1,y1){g.globalCompositeOperation="destination-out";g.lineCap="round";g.lineWidth=sz()*.82*dpr;
   g.beginPath();g.moveTo(x0*dpr,y0*dpr);g.lineTo(x1*dpr,y1*dpr);g.stroke();g.globalCompositeOperation="source-over"}
- function vai2(nx,ny){var px=x,py=y,dx=nx-px,dy=ny-py;if(dx*dx+dy*dy<1)return;a=Math.atan2(dy,dx)*180/Math.PI;x=nx;y=ny;place();taglia(px,py,x,y);
-  if(!used){used=true;r.classList.remove("tip");if(window.__stat)window.__stat("click","Mini robot Kress (gioco)")}}
+ function vai2(nx,ny,auto){var px=x,py=y,dx=nx-px,dy=ny-py;if(dx*dx+dy*dy<.01)return;a=Math.atan2(dy,dx)*180/Math.PI;x=nx;y=ny;place();taglia(px,py,x,y);
+  if(auto)return;run=false;if(!used){used=true;r.classList.remove("tip");if(window.__stat)window.__stat("click","Mini robot Kress (gioco)")}}
  function pos(e){var b=hd.getBoundingClientRect();return[e.clientX-b.left,e.clientY-b.top]}
- r.addEventListener("pointerdown",function(e){e.preventDefault();drag=true;try{r.setPointerCapture(e.pointerId)}catch(_){}var p=pos(e);ox=p[0]-x;oy=p[1]-y});
+ r.addEventListener("pointerdown",function(e){e.preventDefault();drag=true;run=false;r.classList.remove("auto");try{r.setPointerCapture(e.pointerId)}catch(_){}var p=pos(e);ox=p[0]-x;oy=p[1]-y});
  r.addEventListener("pointermove",function(e){if(!drag)return;var p=pos(e);vai2(p[0]-ox,p[1]-oy)});
  ["pointerup","pointercancel","lostpointercapture"].forEach(function(t){r.addEventListener(t,function(){drag=false})});
  r.addEventListener("keydown",function(e){var k={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];if(!k)return;e.preventDefault();vai2(x+k[0]*14,y+k[1]*10)});
  window.addEventListener("resize",size);size();
  setInterval(function(){if(!tex||document.hidden)return;g.globalAlpha=.03;g.drawImage(tex,0,0);g.globalAlpha=1},300);
- setTimeout(function(){if(!used){r.classList.add("tip");told=true;setTimeout(function(){r.classList.remove("tip")},6000)}},1800)}
+ function tip(){if(!used){r.classList.add("tip");told=true;setTimeout(function(){r.classList.remove("tip")},6000)}}
+ /* all'apertura il robot lavora da solo per qualche secondo, come un vero robot: dritto finché incontra il bordo, poi gira */
+ var rm=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+ if(rm){setTimeout(tip,1800);return}
+ var dir=(150+Math.random()*60)*Math.PI/180,t0=0,tl=0,DUR=7000,X0=0,X1=0,HX=0;run=true;r.classList.add("auto");
+ function zona(){var hb=hd.getBoundingClientRect(),t=hd.querySelector(".lgtx"),c=$("hcall"),a0=t?t.getBoundingClientRect().right-hb.left+20:0,a1=c&&c.offsetWidth?c.getBoundingClientRect().left-hb.left-10:W;
+  HX=a1-a0>=60?(a0+a1)/2:W*(W<700?.86:.68);X0=0;X1=W}
+ function step(ts){if(!run){return}if(!t0){t0=tl=ts}var dt=Math.min(.05,(ts-tl)/1000);tl=ts;
+  var s=sz(),v=W<700?70:110,nx=x+Math.cos(dir)*v*dt,ny=y+Math.sin(dir)*v*dt,m=s*.55;
+  if(nx<X0+m||nx>X1-m||ny<s*.45||ny>H-s*.45){dir=dir+Math.PI*(.6+Math.random()*.5)*(Math.random()<.5?-1:1);
+   nx=Math.max(X0+m,Math.min(X1-m,nx));ny=Math.max(s*.45,Math.min(H-s*.45,ny))}
+  vai2(nx,ny,true);
+  if(ts-t0<DUR)requestAnimationFrame(step);else casa(ts)}
+ function casa(ts){if(!run){r.classList.remove("auto");return}var dt=Math.min(.05,(ts-tl)/1000);tl=ts;var hy=H*(W<700?.8:.62),dx=HX-x,dy=hy-y,d=Math.sqrt(dx*dx+dy*dy),v=(W<700?70:110)*dt;
+  if(d<=v){vai2(HX,hy,true);run=false;r.classList.remove("auto");tip();return}vai2(x+dx/d*v,y+dy/d*v,true);requestAnimationFrame(casa)}
+ setTimeout(function(){zona();requestAnimationFrame(step)},600)}
 function initSchede(){
  var dlg=document.createElement("div");dlg.className="skd";dlg.hidden=true;dlg.setAttribute("role","dialog");dlg.setAttribute("aria-modal","true");dlg.setAttribute("aria-labelledby","sk-t");
  dlg.innerHTML='<div class="skb"><button type="button" class="skx" aria-label="Chiudi la scheda prodotto">×</button><div class="skimg" id="sk-i"></div><div class="skc"><p class="skl">Scheda prodotto</p><h3 id="sk-t"></h3><p class="skd-d" id="sk-d"></p><table class="skt"><tbody id="sk-r"></tbody></table><p class="skn">Dati indicativi del costruttore: chiedici conferma prima dell’acquisto.</p><div class="skf"><span class="price" id="sk-p"></span><button class="btn" type="button" id="sk-a">Chiedi informazioni</button></div></div></div>';
