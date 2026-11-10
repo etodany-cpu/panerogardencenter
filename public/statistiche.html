@@ -46,11 +46,13 @@ tr:last-child td{border-bottom:0}
 .mini{height:4px;background:var(--soft);border-radius:2px;margin-top:4px}
 .mini i{display:block;height:100%;background:var(--bar);border-radius:2px}
 .empty{color:var(--muted)}
-.rq{margin-bottom:16px}.badge{display:inline-block;background:#c62828;color:#fff;border-radius:999px;font-size:.8rem;padding:1px 9px;vertical-align:middle;margin-left:6px}
+.rq{margin-bottom:16px}[hidden]{display:none!important}.badge{display:inline-block;background:#c62828;color:#fff;border-radius:999px;font-size:.8rem;padding:1px 9px;vertical-align:middle;margin-left:6px}
 .req{border-top:1px solid var(--border);padding:12px 0;display:grid;gap:4px}.req:first-child{border-top:0}
 .req.new{border-left:4px solid var(--base);padding-left:12px}
 .req .top{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}.req b{font-size:1.05rem}.req .meta{color:var(--muted);font-size:.88rem}
 .req .msg{white-space:pre-wrap;overflow-wrap:anywhere}.req .acts{display:flex;flex-wrap:wrap;gap:8px}.req .acts a,.req .acts button{font-size:.88rem;padding:6px 12px}
+.rqh{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}.rqh h2{margin:0}
+button.del{color:#c62828;border-color:color-mix(in srgb,#c62828 40%,var(--border))}button.del.sure{background:#c62828;color:#fff;border-color:#c62828}
 .req .acts a{border:1px solid var(--border);border-radius:999px;text-decoration:none;color:var(--fg);font-weight:600}
 .note{color:var(--muted);font-size:.88rem;margin-top:20px}
 </style>
@@ -85,7 +87,8 @@ tr:last-child td{border-bottom:0}
     </header>
 
     <section class="box rq">
-      <h2>Richieste dal modulo contatti <span id="rq-n" class="badge" hidden></span></h2>
+      <div class="rqh"><h2>Richieste dal modulo contatti <span id="rq-n" class="badge" hidden></span></h2>
+      <div class="per" role="group" aria-label="Elenco richieste"><button type="button" data-v="0" aria-pressed="true">Da gestire</button><button type="button" data-v="1" aria-pressed="false">Archivio <span id="rq-a"></span></button></div></div>
       <div id="rq"></div>
     </section>
 
@@ -160,13 +163,20 @@ tr:last-child td{border-bottom:0}
     document.querySelectorAll("[data-g]").forEach(function(b){b.setAttribute("aria-pressed",String(+b.dataset.g===G))});
   }
 
+  var VIEW=0;
+  async function azione(id,a){await fetch("/api/richieste",{method:"POST",headers:{Authorization:"Bearer "+PW,"Content-Type":"application/json"},body:JSON.stringify({id:id,azione:a})});richieste()}
+  function btn(txt,cls,fn){var b=document.createElement("button");b.type="button";b.textContent=txt;if(cls)b.className=cls;b.onclick=fn;return b}
   async function richieste(){
     var el=$("rq");
-    try{var r=await fetch("/api/richieste",{headers:{Authorization:"Bearer "+PW},cache:"no-store"});if(!r.ok)throw 0;var L=(await r.json()).richieste||[]}
+    try{var r=await fetch("/api/richieste",{headers:{Authorization:"Bearer "+PW},cache:"no-store"});if(!r.ok)throw 0;var T=(await r.json()).richieste||[]}
     catch(e){el.textContent="Non riesco a caricare le richieste.";return}
-    el.textContent="";var nuove=L.filter(function(x){return !x.letta}).length;$("rq-n").hidden=!nuove;$("rq-n").textContent=nuove+" da leggere";
-    if(!L.length){el.innerHTML='<p class="empty">Ancora nessuna richiesta.</p>';return}
-    L.forEach(function(x){var d=document.createElement("div");d.className="req"+(x.letta?"":" new");
+    var nuove=T.filter(function(x){return !x.letta&&!x.archiviata}).length,arch=T.filter(function(x){return x.archiviata}).length;
+    $("rq-n").hidden=!nuove;$("rq-n").textContent=nuove+" da leggere";$("rq-a").textContent=arch?"("+arch+")":"";
+    document.querySelectorAll("[data-v]").forEach(function(b){b.setAttribute("aria-pressed",String(+b.dataset.v===VIEW))});
+    var L=T.filter(function(x){return (x.archiviata?1:0)===VIEW});
+    el.textContent="";
+    if(!L.length){var e0=document.createElement("p");e0.className="empty";e0.textContent=VIEW?"L’archivio è vuoto.":"Nessuna richiesta da gestire.";el.appendChild(e0);return}
+    L.forEach(function(x){var d=document.createElement("div");d.className="req"+(x.letta||x.archiviata?"":" new");
       var top=document.createElement("div");top.className="top";var b=document.createElement("b");b.textContent=x.nome;top.appendChild(b);
       var m=document.createElement("span");m.className="meta";m.textContent=x.quando.replace(/^(\d+)-(\d+)-(\d+) /,"$3/$2/$1 ore ")+(x.tipo?" · "+x.tipo:"")+(x.email_inviata?" · email inviata":"");top.appendChild(m);d.appendChild(top);
       var c=document.createElement("div");c.textContent="Recapito: "+x.contatto;d.appendChild(c);
@@ -174,9 +184,14 @@ tr:last-child td{border-bottom:0}
       var a=document.createElement("div");a.className="acts";var t=String(x.contatto).replace(/[^\d+]/g,"");
       if(/@/.test(x.contatto)){var e=document.createElement("a");e.href="mailto:"+x.contatto;e.textContent="Rispondi per email";a.appendChild(e)}
       else if(t.length>=8){var k=document.createElement("a");k.href="tel:"+t;k.textContent="Chiama";a.appendChild(k);var w=document.createElement("a");w.href="https://wa.me/"+(t.indexOf("+")===0?t.slice(1):(t.indexOf("39")===0&&t.length>11?t:"39"+t));w.textContent="WhatsApp";a.appendChild(w)}
-      if(!x.letta){var bt=document.createElement("button");bt.type="button";bt.textContent="Segna come letta";bt.onclick=async function(){bt.disabled=true;await fetch("/api/richieste",{method:"POST",headers:{Authorization:"Bearer "+PW,"Content-Type":"application/json"},body:JSON.stringify({id:x.id})});richieste()};a.appendChild(bt)}
+      if(!x.letta&&!x.archiviata)a.appendChild(btn("Segna come letta","",function(){this.disabled=true;azione(x.id,"letta")}));
+      a.appendChild(x.archiviata?btn("Rimetti tra le richieste","",function(){this.disabled=true;azione(x.id,"ripristina")}):btn("Archivia","",function(){this.disabled=true;azione(x.id,"archivia")}));
+      var del=btn("Elimina","del",function(){if(!del.classList.contains("sure")){del.classList.add("sure");del.textContent="Conferma: elimina per sempre";no.hidden=false;return}del.disabled=true;azione(x.id,"elimina")});
+      var no=btn("Annulla","",function(){del.classList.remove("sure");del.textContent="Elimina";no.hidden=true});no.hidden=true;
+      a.appendChild(del);a.appendChild(no);
       d.appendChild(a);el.appendChild(d)});
   }
+  document.querySelectorAll("[data-v]").forEach(function(b){b.addEventListener("click",function(){VIEW=+b.dataset.v;richieste()})});
 
   async function show(){
     try{var d=await load();$("login").hidden=true;$("app").hidden=false;store(PW);draw(d);richieste()}

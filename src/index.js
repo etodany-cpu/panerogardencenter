@@ -156,8 +156,15 @@ async function autorizzato(request, env) {
 async function richieste(request, env) {
   if (!(await autorizzato(request, env))) return Response.json({ error: "Password errata" }, { status: 401 });
   if (request.method === "POST") {
-    const { id } = await request.json().catch(() => ({}));
-    if (id) await env.STATS.prepare("UPDATE richieste SET letta = 1 WHERE id = ?1").bind(Number(id)).run();
+    const { id, azione = "letta" } = await request.json().catch(() => ({}));
+    const sql = {
+      letta: "UPDATE richieste SET letta = 1 WHERE id = ?1",
+      archivia: "UPDATE richieste SET archiviata = 1, letta = 1 WHERE id = ?1",
+      ripristina: "UPDATE richieste SET archiviata = 0 WHERE id = ?1",
+      elimina: "DELETE FROM richieste WHERE id = ?1",
+    }[azione];
+    if (!id || !sql) return Response.json({ error: "Azione non valida" }, { status: 400 });
+    await env.STATS.prepare(sql).bind(Number(id)).run();
     return Response.json({ ok: true });
   }
   const { results } = await env.STATS.prepare("SELECT * FROM richieste ORDER BY id DESC LIMIT 200").all();
