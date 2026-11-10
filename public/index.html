@@ -646,7 +646,7 @@ function initRobot(){
  /* all'apertura il robot lavora da solo per qualche secondo, come un vero robot: dritto finché incontra il bordo, poi gira */
  var rm=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
  if(rm){setTimeout(tip,1800);return}
- var dir=(150+Math.random()*60)*Math.PI/180,t0=0,tl=0,DUR=7000,X0=0,X1=0,HX=0;run=true;r.classList.add("auto");
+ var dir=(150+Math.random()*60)*Math.PI/180,t0=0,tl=0,DUR=10000,X0=0,X1=0,HX=0;run=true;r.classList.add("auto");
  function zona(){var hb=hd.getBoundingClientRect(),t=hd.querySelector(".lgtx"),c=$("hcall"),a0=t?t.getBoundingClientRect().right-hb.left+20:0,a1=c&&c.offsetWidth?c.getBoundingClientRect().left-hb.left-10:W;
   HX=a1-a0>=60?(a0+a1)/2:W*(W<700?.86:.68);X0=0;X1=W}
  function step(ts){if(!run){return}if(!t0){t0=tl=ts}var dt=Math.min(.05,(ts-tl)/1000);tl=ts;
