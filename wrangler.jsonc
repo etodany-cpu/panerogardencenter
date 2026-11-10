@@ -7,7 +7,7 @@
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
-    "run_worker_first": ["/api/*"],
+    "run_worker_first": ["/api/*", "/google96a36c1ad8593c7b.html"],
     "not_found_handling": "single-page-application"
   },
   // Statistiche anonime delle visite (vedi /api/hit e /statistiche.html).

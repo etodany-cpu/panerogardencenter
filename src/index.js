@@ -129,6 +129,12 @@ async function stats(request, env) {
 export default {
   async fetch(request, env, ctx) {
     const { pathname } = new URL(request.url);
+    // Verifica della proprietà per Google Search Console (servita senza redirect).
+    if (pathname === "/google96a36c1ad8593c7b.html") {
+      return new Response("google-site-verification: google96a36c1ad8593c7b.html", {
+        headers: { "Content-Type": "text/html; charset=utf-8" },
+      });
+    }
     if (pathname === "/api/meteo") return meteo(request, ctx);
     if (pathname === "/api/contatto") return contatto(request);
     if (pathname === "/api/hit") return hit(request, env);
