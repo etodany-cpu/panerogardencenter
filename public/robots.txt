@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /statistiche
+Disallow: /api/
+
+Sitemap: https://panerogardencenter.panerogarden.workers.dev/sitemap.xml
