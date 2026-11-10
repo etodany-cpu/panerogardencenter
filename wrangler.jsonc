@@ -9,5 +9,13 @@
     "binding": "ASSETS",
     "run_worker_first": ["/api/*"],
     "not_found_handling": "single-page-application"
+  },
+  // Statistiche anonime delle visite (vedi /api/hit e /statistiche.html).
+  "d1_databases": [
+    { "binding": "STATS", "database_name": "panerogarden-stats", "database_id": "535cf08a-1c1f-4e18-b80f-8e5b4ba8d3f6" }
+  ],
+  "vars": {
+    // Hash SHA-256 della password della pagina statistiche (la password non è nel codice).
+    "STATS_HASH": "80b4f637db22803067230366ae083f4d96cdbc197e56ce3732f993bdf7e1481a"
   }
 }

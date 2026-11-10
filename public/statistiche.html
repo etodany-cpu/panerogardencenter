@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Statistiche visite – Panero Garden</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root{--base:#2e7d32;--bg:#f6f8f3;--fg:#17261c;--muted:#52635a;--card:#fff;--border:#d5e0cd;--accent:#2e7d32;--soft:#e3eedf;--bar:#4f9c3f;--fd:"Bricolage Grotesque",system-ui,sans-serif;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1812;--fg:#e8f1e9;--muted:#a3b5a8;--card:#17241c;--border:#27392d;--accent:#8fd18a;--soft:#1d3024;--bar:#6fbf5a;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 Figtree,system-ui,sans-serif}
+.wrap{max-width:1040px;margin:0 auto;padding:24px max(16px,env(safe-area-inset-left,0px)) 48px max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:20px}
+h1{font-family:var(--fd);font-size:clamp(1.6rem,4vw,2.2rem);margin:0;line-height:1.1;text-wrap:balance}
+h2{font-family:var(--fd);font-size:1.15rem;margin:0 0 10px}
+.sub{color:var(--muted);margin:4px 0 0}
+.box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
+#login{max-width:420px;margin:12vh auto 0}
+#login form{display:flex;flex-direction:column;gap:10px}
+input{font:inherit;padding:11px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--fg)}
+button{font:inherit;font-weight:600;cursor:pointer;border-radius:999px;padding:9px 16px;border:1px solid var(--border);background:var(--card);color:var(--fg)}
+button.pri{background:var(--base);color:#fff;border-color:var(--base)}
+button[aria-pressed="true"]{background:var(--base);color:#fff;border-color:var(--base)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.err{color:#c62828;min-height:1.5em;margin:0}
+.per{display:flex;flex-wrap:wrap;gap:6px}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.kpi .box{padding:14px 16px}
+.kpi b{display:block;font-family:var(--fd);font-size:2rem;line-height:1.1}
+.kpi span{color:var(--muted);font-size:.92rem}
+.chart{display:flex;align-items:flex-end;gap:2px;height:160px;padding-top:8px;overflow-x:auto}
+.chart div{flex:1 0 6px;min-width:6px;background:var(--bar);border-radius:3px 3px 0 0;position:relative}
+.chart div:hover{opacity:.75}
+.axis{display:flex;justify-content:space-between;color:var(--muted);font-size:.8rem;margin-top:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:16px}
+.grid .box{min-width:0}
+table{width:100%;border-collapse:collapse;font-size:.95rem}
+td{padding:6px 0;border-bottom:1px solid var(--border);vertical-align:top}
+td:last-child{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;padding-left:12px;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+.empty td{text-align:left;font-weight:400}
+.lbl{display:block;overflow-wrap:anywhere}
+.mini{height:4px;background:var(--soft);border-radius:2px;margin-top:4px}
+.mini i{display:block;height:100%;background:var(--bar);border-radius:2px}
+.empty{color:var(--muted)}
+.note{color:var(--muted);font-size:.88rem;margin-top:20px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section id="login" class="box">
+    <h1>Statistiche visite</h1>
+    <p class="sub">Panero Francesco S.N.C – area riservata</p>
+    <form id="lf">
+      <label for="pw">Password</label>
+      <input id="pw" type="password" autocomplete="current-password" required>
+      <button class="pri" type="submit">Entra</button>
+      <p class="err" id="le" role="alert"></p>
+    </form>
+  </section>
+
+  <main id="app" hidden>
+    <header>
+      <div>
+        <h1>Statistiche visite</h1>
+        <p class="sub" id="periodo"></p>
+      </div>
+      <div class="per" role="group" aria-label="Periodo">
+        <button type="button" data-g="1">Oggi</button>
+        <button type="button" data-g="7">7 giorni</button>
+        <button type="button" data-g="30">30 giorni</button>
+        <button type="button" data-g="90">90 giorni</button>
+        <button type="button" data-g="365">Un anno</button>
+        <button type="button" id="esci">Esci</button>
+      </div>
+    </header>
+
+    <div class="kpi">
+      <div class="box"><b id="k-vis">0</b><span>Visite</span></div>
+      <div class="box"><b id="k-pag">0</b><span>Pagine viste</span></div>
+      <div class="box"><b id="k-cl">0</b><span>Clic</span></div>
+      <div class="box"><b id="k-info">0</b><span>Richieste di informazioni</span></div>
+      <div class="box"><b id="k-tel">0</b><span>Chiamate e WhatsApp</span></div>
+    </div>
+
+    <section class="box">
+      <h2>Visite al giorno</h2>
+      <div class="chart" id="chart"></div>
+      <div class="axis"><span id="ax0"></span><span id="ax1"></span></div>
+    </section>
+
+    <div class="grid">
+      <section class="box"><h2>Pulsanti più cliccati</h2><table id="t-click"></table></section>
+      <section class="box"><h2>Pagine più viste</h2><table id="t-view"></table></section>
+      <section class="box"><h2>Da dove arrivano</h2><table id="t-visit"></table></section>
+      <section class="box"><h2>Dispositivo</h2><table id="t-device"></table></section>
+      <section class="box"><h2>Paese</h2><table id="t-country"></table></section>
+    </div>
+    <p class="note">Conteggi anonimi: il sito non usa cookie e non salva indirizzi IP né dati personali dei visitatori. Una "visita" è ogni apertura del sito; i robot dei motori di ricerca sono esclusi.</p>
+  </main>
+</div>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var PW="",G=30;
+  var PAG={home:"Home",catalogo:"Catalogo",assistenza:"Assistenza",marchi:"Marchi",contatti:"Contatti"};
+  var paese;try{paese=new Intl.DisplayNames(["it"],{type:"region"})}catch(e){}
+  function store(v){try{v?sessionStorage.setItem("pgs",v):sessionStorage.removeItem("pgs")}catch(e){}}
+  function fmt(n){return n.toLocaleString("it-IT")}
+  function dt(s){var p=s.split("-");return p[2]+"/"+p[1]}
+
+  async function load(){
+    var r=await fetch("/api/stats?giorni="+G,{headers:{Authorization:"Bearer "+PW},cache:"no-store"});
+    if(r.status===401)throw new Error("Password errata");
+    if(!r.ok)throw new Error("Statistiche non disponibili ("+r.status+")");
+    return r.json();
+  }
+
+  function table(id,map,lab){
+    var el=$(id),rows=Object.keys(map).map(function(k){return[k,map[k]]}).sort(function(a,b){return b[1]-a[1]}).slice(0,20);
+    el.textContent="";
+    if(!rows.length){var tr=el.insertRow();tr.insertCell().textContent="Ancora nessun dato";tr.className="empty";return}
+    var max=rows[0][1];
+    rows.forEach(function(x){var tr=el.insertRow(),a=tr.insertCell(),b=tr.insertCell();
+      var s=document.createElement("span");s.className="lbl";s.textContent=lab?lab(x[0]):x[0];a.appendChild(s);
+      var m=document.createElement("div");m.className="mini";var i=document.createElement("i");i.style.width=Math.max(3,x[1]/max*100)+"%";m.appendChild(i);a.appendChild(m);
+      b.textContent=fmt(x[1])});
+  }
+
+  function draw(d){
+    var by={visit:{},view:{},click:{},country:{},device:{}},perDay={},tot={visit:0,view:0,click:0};
+    d.righe.forEach(function(r){var m=by[r.kind];if(!m)return;m[r.k]=(m[r.k]||0)+r.n;
+      if(tot[r.kind]!=null)tot[r.kind]+=r.n;if(r.kind==="visit")perDay[r.day]=(perDay[r.day]||0)+r.n});
+    $("periodo").textContent=G===1?"Oggi, "+dt(d.a):"Dal "+dt(d.da)+" al "+dt(d.a);
+    $("k-vis").textContent=fmt(tot.visit);$("k-pag").textContent=fmt(tot.view);$("k-cl").textContent=fmt(tot.click);
+    var info=0,tel=0;Object.keys(by.click).forEach(function(k){if(/^Chiedi informazioni|^Invia richiesta/.test(k))info+=by.click[k];if(/^Telefono|^WhatsApp/.test(k))tel+=by.click[k]});
+    $("k-info").textContent=fmt(info);$("k-tel").textContent=fmt(tel);
+    // grafico: un giorno per colonna, anche quelli senza visite
+    var c=$("chart");c.textContent="";var days=[],t=new Date(d.da+"T12:00:00"),end=new Date(d.a+"T12:00:00");
+    while(t<=end){days.push(t.toISOString().slice(0,10));t=new Date(t.getTime()+86400000)}
+    var mx=Math.max.apply(null,days.map(function(x){return perDay[x]||0}).concat([1]));
+    days.forEach(function(x){var b=document.createElement("div"),n=perDay[x]||0;b.style.height=Math.max(2,n/mx*100)+"%";b.title=dt(x)+": "+n+" visite";c.appendChild(b)});
+    $("ax0").textContent=dt(days[0]);$("ax1").textContent=dt(days[days.length-1]);
+    table("t-click",by.click);table("t-view",by.view,function(k){return PAG[k]||k});table("t-visit",by.visit);
+    table("t-device",by.device);table("t-country",by.country,function(k){try{return paese?paese.of(k):k}catch(e){return k}});
+    document.querySelectorAll("[data-g]").forEach(function(b){b.setAttribute("aria-pressed",String(+b.dataset.g===G))});
+  }
+
+  async function show(){
+    try{var d=await load();$("login").hidden=true;$("app").hidden=false;store(PW);draw(d)}
+    catch(e){store("");$("app").hidden=true;$("login").hidden=false;$("le").textContent=e.message}
+  }
+
+  $("lf").addEventListener("submit",function(e){e.preventDefault();PW=$("pw").value;$("le").textContent="";show()});
+  document.querySelectorAll("[data-g]").forEach(function(b){b.addEventListener("click",function(){G=+b.dataset.g;show()})});
+  $("esci").addEventListener("click",function(){PW="";store("");$("pw").value="";$("app").hidden=true;$("login").hidden=false});
+  try{PW=sessionStorage.getItem("pgs")||""}catch(e){}
+  if(PW)show();
+})();
+</script>
+</body>
+</html>

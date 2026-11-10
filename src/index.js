@@ -67,11 +67,72 @@ async function contatto(request) {
   return Response.json(out, { status: res.ok ? 200 : 502 });
 }
 
+// --- Statistiche visite (senza cookie e senza salvare indirizzi IP) ---
+// Il sito invia a /api/hit eventi anonimi (pagina vista, clic, visita); qui si sommano per giorno in D1.
+// Solo il titolare legge i totali da /statistiche.html, con la password il cui hash SHA-256 è in STATS_HASH.
+const KINDS = new Set(["visit", "view", "click"]);
+const BOT = /bot|crawl|spider|slurp|preview|monitor|headless|lighthouse|curl|wget|python/i;
+
+function today() {
+  return new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Rome" });
+}
+
+function device(ua) {
+  if (/ipad|tablet/i.test(ua)) return "Tablet";
+  if (/mobi|android|iphone/i.test(ua)) return "Telefono";
+  return "Computer";
+}
+
+async function hit(request, env) {
+  if (request.method !== "POST" || !env.STATS) return new Response(null, { status: 204 });
+  const ua = request.headers.get("User-Agent") || "";
+  if (BOT.test(ua)) return new Response(null, { status: 204 });
+  let data;
+  try {
+    data = JSON.parse(await request.text());
+  } catch {
+    return new Response(null, { status: 400 });
+  }
+  const kind = String(data.t || "");
+  const key = String(data.k || "").replace(/\s+/g, " ").trim().slice(0, 80);
+  if (!KINDS.has(kind) || !key) return new Response(null, { status: 400 });
+  const day = today();
+  const rows = [[kind, key]];
+  if (kind === "visit") {
+    rows.push(["country", (request.cf && request.cf.country) || "??"]);
+    rows.push(["device", device(ua)]);
+  }
+  const stmt = env.STATS.prepare(
+    "INSERT INTO ev (day, kind, k, n) VALUES (?1, ?2, ?3, 1) ON CONFLICT(day, kind, k) DO UPDATE SET n = n + 1"
+  );
+  await env.STATS.batch(rows.map(([t, k]) => stmt.bind(day, t, k)));
+  return new Response(null, { status: 204 });
+}
+
+async function sha256(text) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function stats(request, env) {
+  const auth = (request.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
+  if (!env.STATS_HASH || !auth || (await sha256(auth)) !== env.STATS_HASH) {
+    return Response.json({ error: "Password errata" }, { status: 401 });
+  }
+  const url = new URL(request.url);
+  const days = Math.min(Math.max(Number.parseInt(url.searchParams.get("giorni") || "30", 10) || 30, 1), 365);
+  const from = new Date(Date.now() - (days - 1) * 86400000).toLocaleDateString("sv-SE", { timeZone: "Europe/Rome" });
+  const { results } = await env.STATS.prepare("SELECT day, kind, k, n FROM ev WHERE day >= ?1 ORDER BY day").bind(from).all();
+  return Response.json({ da: from, a: today(), righe: results }, { headers: { "Cache-Control": "no-store" } });
+}
+
 export default {
   async fetch(request, env, ctx) {
     const { pathname } = new URL(request.url);
     if (pathname === "/api/meteo") return meteo(request, ctx);
     if (pathname === "/api/contatto") return contatto(request);
+    if (pathname === "/api/hit") return hit(request, env);
+    if (pathname === "/api/stats") return stats(request, env);
     return env.ASSETS.fetch(request);
   },
 };

@@ -574,6 +574,7 @@ function admin(){
  var mk=function(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x)e.textContent=x;return e};
  b.className="btn adm-btn";b.textContent="✏️ Modifica sito";o.className="adm";document.body.appendChild(b);document.body.appendChild(o);
  b.onclick=function(){draw();o.classList.add("on")};
+ var st=document.createElement("a");st.className="btn o adm-btn";st.textContent="📊 Statistiche visite";st.href="https://panerogardencenter.panerogarden.workers.dev/statistiche";st.target="_blank";st.rel="noopener";st.style.bottom="calc(70px + env(safe-area-inset-bottom,0px))";document.body.appendChild(st);
  function inp(label,val,set,type){var w=mk("div"),e=type==="long"?mk("textarea"):mk("input");if(type&&type!=="long")e.type=type;
   e.value=val==null?"":val;e.oninput=function(){set(e.value)};w.appendChild(mk("label","",label));w.appendChild(e);return w}
  function photo(key,label,max,bg){key=key||"foto";var w=mk("div"),e=mk("input"),im=mk("img");e.type="file";e.accept="image/*";im.src=draft[key]||"";im.style.cssText="max-width:160px;background:"+(bg==="none"?"#5b5b5b":(bg||"#fff"))+";border-radius:8px;margin-top:6px";
@@ -624,5 +625,26 @@ function initPagine(){
 
 render();initPagine();initZoom();initSchede();
 (async function(){try{if(!window.claude||!claude.use)return;var u=await claude.use("user");if(u&&u.canEdit())admin()}catch(e){}})();
+(function(){/* statistiche anonime: niente cookie, niente dati personali; solo sul sito pubblicato */
+ if(!/^https:$/.test(location.protocol)||/claude/.test(location.hostname))return;
+ function s(t,k){try{var b=JSON.stringify({t:t,k:String(k).slice(0,80)});if(navigator.sendBeacon)navigator.sendBeacon("/api/hit",new Blob([b],{type:"text/plain"}));else fetch("/api/hit",{method:"POST",body:b,keepalive:true})}catch(e){}}
+ var r="";try{r=document.referrer?new URL(document.referrer).hostname.replace(/^www\./,""):""}catch(e){}
+ if(r===location.hostname)r="";
+ s("visit",r?r:"Diretto o app");
+ var last="";function pv(){setTimeout(function(){var a=document.querySelector("[data-pg].on"),pg=a?a.getAttribute("data-pg"):(location.hash.slice(1)||"home");if(pg!==last){last=pg;s("view",pg)}},60)}
+ pv();window.addEventListener("hashchange",pv);
+ document.addEventListener("click",function(e){var el=e.target.closest("a,button");if(!el)return;var l="",tx=(el.textContent||"").replace(/\s+/g," ").trim();
+  if(el.hasAttribute("data-m"))l="Chiedi informazioni: "+el.getAttribute("data-m");
+  else if(el.hasAttribute("data-sk")){var c=el.closest(".card"),n=c&&c.querySelector("h3");l="Scheda prodotto: "+(n?n.textContent:tx)}
+  else if(el.id==="sk-a")l="Chiedi informazioni (da scheda)";
+  else if(el.id==="inv")l="Invia richiesta (modulo contatti)";
+  else if(el.hasAttribute("data-f"))l="Filtro catalogo: "+tx;
+  else if(el.hasAttribute("data-pg"))return;
+  else if(/^tel:/.test(el.getAttribute("href")||"")||el.id==="tel")l="Telefono: "+tx;
+  else if(/wa\.me|whatsapp/i.test(el.getAttribute("href")||""))l="WhatsApp";
+  else if(/google\.[a-z.]+\/maps/.test(el.getAttribute("href")||""))l="Google Maps: "+tx;
+  else if(/^mailto:/.test(el.getAttribute("href")||""))l="Email";
+  else if(tx&&tx.length<=40)l=tx;
+  if(l)s("click",l)},true)})();
 })();
 </script></body></html>
