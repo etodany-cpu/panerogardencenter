@@ -473,6 +473,106 @@ header .lgtx small.lgad svg{width:16px;height:16px;flex:none;color:#e0546f}
 @media(min-width:900px){header .wrap{max-width:none;padding-left:0}header .logo{gap:0}header .logoimg.lg-dk{width:248px;height:88px;object-fit:contain;padding:0 24px;box-sizing:border-box}header .lgtx{padding-left:24px}}
 
 @media(min-width:701px) and (max-width:1179px){header .lgtx small:not(.lgad){white-space:normal;overflow:visible;text-overflow:clip;font-size:.84rem;line-height:1.2;max-width:420px;text-wrap:balance}}
+
+/* ===== Newsletter "Il Giornale del Prato" con consensi privacy ===== */
+#newsletter{background:radial-gradient(700px 380px at 100% 0%,color-mix(in srgb,var(--fresh) 18%,transparent),transparent 70%),var(--bg)}
+.nl{display:grid;border-radius:30px;overflow:hidden;background:var(--card);box-shadow:var(--shadow),0 0 0 1px var(--border)}
+@media(min-width:880px){.nl{grid-template-columns:minmax(0,5fr) minmax(0,7fr)}}
+.nl-side{position:relative;overflow:hidden;padding:clamp(26px,4vw,40px);color:#f2f8ee;
+ background:radial-gradient(420px 260px at 100% 0%,color-mix(in srgb,var(--fresh) 40%,transparent),transparent 65%),linear-gradient(160deg,var(--forest),color-mix(in srgb,var(--base) 62%,var(--forest)))}
+.nl-side::after{content:"";position:absolute;left:0;right:0;bottom:0;height:46px;background:var(--stripes);opacity:.55;clip-path:polygon(0 70%,100% 10%,100% 100%,0 100%)}
+.nl-kick{display:inline-flex;align-items:center;gap:8px;margin:0 0 14px;padding:6px 14px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);font-weight:600;font-size:.88rem}
+.nl-side h2{color:#fff;margin:0 0 10px}
+.nl-side h2::after{display:none}
+.nl-side>p{margin:0;color:rgba(242,248,238,.86);font-size:1.02rem}
+.nl-year{list-style:none;margin:22px 0 54px;padding:0;display:grid;gap:10px}
+.nl-year li{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12)}
+.nl-year i{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:12px;font-style:normal;font-size:1.25rem;background:rgba(255,255,255,.14)}
+.nl-year li:nth-child(1) i{background:linear-gradient(140deg,#c9f29b,#6cc24a)}
+.nl-year li:nth-child(2) i{background:linear-gradient(140deg,#ffe28a,#f5a623)}
+.nl-year li:nth-child(3) i{background:linear-gradient(140deg,#ffbf8f,#d9692e)}
+.nl-year li:nth-child(4) i{background:linear-gradient(140deg,#d6ecff,#7cb8ee)}
+.nl-year b{display:block;font-family:var(--fd);color:#fff;font-size:1rem;line-height:1.2}
+.nl-year span{font-size:.9rem;color:rgba(242,248,238,.8);line-height:1.35}
+.nl-promise{position:relative;z-index:1;font-size:.88rem!important;color:rgba(242,248,238,.78)!important}
+.nl-form{padding:clamp(22px,4vw,38px);min-width:0}
+.nl-lawn{position:relative;height:64px;border-radius:18px;overflow:hidden;margin:0 0 8px;
+ background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='64'%3E%3Cg fill='none' stroke-linecap='round' stroke-width='2.2'%3E%3Cpath d='M4 64q2-24-3-40' stroke='%23347a28'/%3E%3Cpath d='M11 64q1-30 6-48' stroke='%234f9a33'/%3E%3Cpath d='M19 64q-2-22-8-34' stroke='%232d6b22'/%3E%3Cpath d='M26 64q3-28 0-52' stroke='%235aa83a'/%3E%3Cpath d='M33 64q-1-20 2-30' stroke='%233c8a2c'/%3E%3C/g%3E%3C/svg%3E") repeat-x bottom/36px 64px,linear-gradient(#e3f1d4,#bfe0a5)}
+.nl-cut{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--stripes);border-right:2px dashed rgba(255,255,255,.55);transition:width .7s cubic-bezier(.3,.7,.2,1)}
+.nl-bot{position:absolute;top:50%;left:0;width:58px;height:42px;transform:translateY(-50%);transition:left .7s cubic-bezier(.3,.7,.2,1);filter:drop-shadow(0 4px 4px rgba(0,0,0,.35))}
+.nl-bot svg{display:block;width:100%;height:100%}
+.nl-box{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:1.9rem;line-height:1;filter:drop-shadow(0 3px 3px rgba(0,0,0,.25))}
+.nl.full .nl-box{animation:nlhop .6s ease 2}
+@keyframes nlhop{0%,100%{transform:translateY(-50%)}40%{transform:translateY(-80%) rotate(-8deg)}}
+.nl-info{margin:0 0 18px;font-size:.9rem;color:var(--muted);min-height:1.4em}
+.nl-info b{color:var(--fg)}
+.nl-two{display:grid;gap:0 14px}
+@media(min-width:560px){.nl-two{grid-template-columns:1fr 1.3fr}}
+.nl-form label.nl-l{margin:0 0 6px}
+.nl-two>div{margin-bottom:14px}
+.nl-opt{font-weight:400;color:var(--muted);font-size:.82rem}
+.nl-form fieldset{border:0;margin:6px 0 0;padding:0;min-width:0}
+.nl-form legend{padding:0;margin:0 0 10px;font-family:var(--fd);font-weight:800;font-size:1.12rem}
+.nl-cons{display:grid;gap:10px}
+.nl-c{border:1.5px solid var(--border);border-radius:18px;background:var(--card);transition:border-color .2s,background .2s,box-shadow .2s}
+.nl-c:has(input:checked){border-color:var(--base);background:color-mix(in srgb,var(--base) 6%,var(--card));box-shadow:0 8px 20px -14px color-mix(in srgb,var(--base) 90%,transparent)}
+.nl-c>label{display:flex;align-items:center;gap:14px;margin:0;padding:14px 16px;cursor:pointer;font-weight:400}
+.nl-c .ci{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:14px;font-size:1.35rem;background:linear-gradient(140deg,var(--ia,var(--c1a)),var(--ib,var(--c1b)));box-shadow:inset 0 1px 0 rgba(255,255,255,.45)}
+.nl-c:nth-child(2){--ia:var(--c3a);--ib:var(--c3b)}
+.nl-c:nth-child(3){--ia:var(--c5a);--ib:var(--c5b)}
+.nl-c .ct{flex:1;min-width:0;display:flex;flex-direction:column}
+.nl-c .ct b{font-family:var(--fd);font-size:1.02rem;line-height:1.25}
+.nl-c .ct small{color:var(--muted);font-size:.86rem;line-height:1.4}
+.nl-sw{position:relative;flex:none;width:52px;height:30px}
+.nl-form .nl-sw input{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;opacity:0;cursor:pointer;z-index:1}
+.nl-sw i{position:absolute;inset:0;border-radius:999px;background:color-mix(in srgb,var(--fg) 22%,var(--card));transition:background .2s}
+.nl-sw i::after{content:"";position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.3);transition:transform .2s cubic-bezier(.3,.7,.2,1)}
+.nl-sw input:checked+i{background:var(--grad)}
+.nl-sw input:checked+i::after{transform:translateX(22px)}
+.nl-sw input:focus-visible+i{outline:3px solid var(--fresh);outline-offset:2px}
+.nl-more{padding:0 16px 16px 74px}
+.nl-more[hidden]{display:none}
+.nl-more p{margin:0 0 8px;font-size:.86rem;color:var(--muted)}
+.nl-tags{display:flex;flex-wrap:wrap;gap:8px}
+.nl-tag{font:inherit;font-size:.88rem;font-weight:600;padding:7px 14px;border-radius:999px;cursor:pointer;background:var(--chip-bg,var(--card));color:var(--fg);border:1px solid var(--chip-bd,var(--border));transition:background .15s,transform .15s}
+.nl-tag[aria-pressed="true"]{background:var(--grad);color:#fff;border-color:transparent}
+.nl-tag:active{transform:scale(.96)}
+.nl-tag:focus-visible{outline:3px solid var(--fresh);outline-offset:2px}
+.nl-priv{display:flex;gap:12px;align-items:flex-start;margin:16px 0 0;padding:14px 16px;border-radius:18px;background:color-mix(in srgb,var(--base) 5%,var(--bg));border:1.5px dashed var(--border)}
+.nl-priv:has(input:checked){border-style:solid;border-color:var(--base)}
+.nl-form .nl-priv input{flex:none;width:22px;height:22px;margin:2px 0 0;padding:0;accent-color:var(--base);cursor:pointer}
+.nl-priv label{margin:0;font-weight:400;font-size:.95rem;cursor:pointer}
+.nl-priv label b{font-weight:700}
+.nl-link{font:inherit;font-weight:700;color:color-mix(in srgb,var(--accent) 88%,var(--fg));background:none;border:0;padding:0;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.nl-link:focus-visible{outline:3px solid var(--fresh);outline-offset:2px;border-radius:4px}
+.nl-hp{position:absolute!important;left:-9999px;width:1px;height:1px;overflow:hidden}
+.nl-go{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:18px}
+.nl-go .btn{font-size:1.05rem;padding:13px 26px}
+.nl-go .btn:disabled{opacity:.6;cursor:wait;transform:none}
+.nl-msg{margin:0;font-size:.92rem;color:var(--muted);flex:1;min-width:200px}
+.nl-msg.err{color:#b3261e}
+.nl-fine{margin:14px 0 0;font-size:.8rem;color:var(--muted);line-height:1.5}
+.nl-bad{border-color:#b3261e!important;box-shadow:0 0 0 3px rgba(179,38,30,.15)!important}
+.nl-done{text-align:center;padding:10px 0 4px}
+.nl-done[hidden]{display:none}
+.nl-done .big{font-size:3.2rem;line-height:1;margin:6px 0 10px}
+.nl-done h3{font-family:var(--fd);font-size:1.6rem;margin:0 0 8px;letter-spacing:-.02em}
+.nl-done p{margin:0 auto 14px;max-width:30em;color:var(--muted)}
+.nl-done ul{list-style:none;padding:0;margin:0 auto 18px;display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.nl-done li{padding:6px 14px;border-radius:999px;background:color-mix(in srgb,var(--base) 10%,var(--card));border:1px solid var(--border);font-size:.9rem;font-weight:600}
+.nl-leaf{position:fixed;top:-40px;z-index:70;pointer-events:none;font-size:22px;animation:nlfall linear forwards}
+@keyframes nlfall{to{transform:translate(var(--dx,0),110vh) rotate(var(--r,360deg));opacity:.2}}
+.nl-dlg{position:fixed;inset:0;z-index:56;display:flex;align-items:center;justify-content:center;background:rgba(4,12,7,.72);
+ padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.nl-dlg[hidden]{display:none}
+.nl-dlg>div{position:relative;width:min(720px,100%);max-height:100%;overflow:auto;border-radius:24px;background:var(--card);color:var(--fg);padding:28px clamp(18px,4vw,34px);box-shadow:0 40px 90px -30px rgba(0,0,0,.7)}
+.nl-dlg h3{font-family:var(--fd);font-size:1.45rem;margin:0 40px 6px 0}
+.nl-dlg h4{font-family:var(--fd);font-size:1.02rem;margin:18px 0 4px}
+.nl-dlg p,.nl-dlg li{font-size:.94rem;color:var(--muted);margin:0 0 6px}
+.nl-dlg ul{margin:0;padding-left:20px}
+.nl-dlg .skx{position:absolute}
+@media(max-width:559px){.nl-more{padding-left:16px}.nl-c>label{gap:12px;padding:12px 14px}.nl-c .ci{width:38px;height:38px;font-size:1.15rem}}
+@media (prefers-reduced-motion:reduce){.nl-cut,.nl-bot,.nl-sw i,.nl-sw i::after,.nl-c{transition:none}.nl.full .nl-box{animation:none}.nl-leaf{display:none}}
 </style></head><body><div id="root"></div><template id="tpl"><header><canvas class="erba" aria-hidden="true"></canvas><div class="mini" id="mini" tabindex="0" role="img" aria-label="Mini robot rasaerba Kress: trascinalo per tagliare l'erba"><svg viewBox="0 0 60 44" aria-hidden="true"><rect x="7" y="0.5" width="15" height="8" rx="3" fill="#161616"/><rect x="7" y="35.5" width="15" height="8" rx="3" fill="#161616"/><rect x="3" y="5" width="53" height="34" rx="15" fill="#2b2f33"/><path d="M15 9h24a13 13 0 0 1 0 26H15a7 7 0 0 1-7-7V16a7 7 0 0 1 7-7z" fill="#d7262e"/><rect x="51" y="14" width="5" height="16" rx="2.5" fill="#111"/><circle cx="18" cy="22" r="5" fill="#f3f3f3"/><circle cx="18" cy="22" r="3" fill="#d7262e"/><text x="27" y="24.6" font-family="Arial,Helvetica,sans-serif" font-size="7" font-weight="700" fill="#fff" letter-spacing=".4">KRESS</text></svg><span class="hint">Trascinami e taglia l'erba!</span></div><div class="wrap"><button class="hamb" id="hamb" type="button" aria-label="Apri il menu" aria-controls="side" aria-expanded="false"><span></span><span></span><span></span></button><a class="logo" href="#top"><img class="logoimg lg-dk" src="{{logo}}" alt="Logo Panerogarden" width="76" height="50"><img class="logoimg lg-lt" id="logolt" src="{{logo}}" alt="Logo Panerogarden" width="76" height="50"><span class="lgtx"><b>{{ditta}}</b><small>{{footer}}</small><small class="lgad"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" fill="currentColor"/></svg>Via San Maurizio 157 · Ciriè (TO)</small></span></a><a class="hcall" id="hcall" href="tel:{{telefono}}" aria-label="Chiama il negozio"><i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg></i><span><small>Chiamaci</small><b>{{telefono}}</b></span></a><nav><a class="h" href="#servizi">Servizi</a><a class="h" href="#riparazioni">Riparazioni</a><a class="h" href="#perche">Perché noi</a><a class="h" href="#marchi">Marchi</a><a class="h" href="#catalogo">Catalogo</a><a class="h" href="#recensioni">Recensioni</a><a href="#contatti">Contatti</a></nav></div></header><aside class="side" id="side" aria-label="Pagine del sito"><nav class="snav"><a class="sl" href="#home" data-pg="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span><b>Home</b><small>Servizi e recensioni</small></span></a><a class="sl" href="#catalogo" data-pg="catalogo"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span><b>Catalogo</b><small>Robot e attrezzi</small></span></a><a class="sl" href="#assistenza" data-pg="assistenza"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8V21h3.2l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg><span><b>Assistenza</b><small>Riparazioni e tagliandi</small></span></a><a class="sl" href="#marchi" data-pg="marchi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="8" cy="8" r="1.6"/></svg><span><b>Marchi</b><small>Kress, Honda, EGO, Grin</small></span></a><a class="sl" href="#contatti" data-pg="contatti"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg><span><b>Contatti</b><small>Preventivi, mappa, orari</small></span></a></nav><div class="sfoot"><a class="btn" href="#contatti">Richiedi un preventivo</a></div></aside><div class="sdim" id="sdim"></div><div class="sbar"><div class="wrap"><form class="sbox" id="sform" role="search" action="#catalogo"><span class="sico" aria-hidden="true">🔍</span><input id="q" type="search" placeholder="Cerca un prodotto, es. KR250 o motosega" aria-label="Cerca nel catalogo" autocomplete="off" enterkeyhint="search"><button class="btn" type="submit">Cerca</button></form></div></div>
 <main id="top">
 <div class="hero"><div class="wrap"><div><h1>{{titolo1}} <span>{{titolo2}}.</span></h1><p class="lead">{{intro}}</p>
@@ -487,6 +587,19 @@ header .lgtx small.lgad svg{width:16px;height:16px;flex:none;color:#e0546f}
 <div class="chips" id="chips"><div class="cgrp cg-all"><button class="chip on" data-f="all" type="button">Tutti i prodotti</button></div><div class="cgrp cg-kress"><span class="cgl">Kress</span><button class="chip" data-f="b:kress" type="button">Robot Kress</button><button class="chip" data-f="s" type="button">{{fs}}</button><button class="chip" data-f="m" type="button">{{fm}}</button><button class="chip" data-f="l" type="button">{{fl}}</button><button class="chip" data-f="b:k40" type="button">Kress 40V</button><button class="chip" data-f="b:k60" type="button">Kress 60V Professional</button></div><div class="cgrp cg-honda"><span class="cgl">Honda</span><button class="chip" data-f="b:honda" type="button">Robot Miimo</button><button class="chip" data-f="b:hbat" type="button">A batteria</button><button class="chip" data-f="b:hras" type="button">Rasaerba</button><button class="chip" data-f="b:hdec" type="button">Decespugliatori</button><button class="chip" data-f="b:htos" type="button">Tosasiepi</button><button class="chip" data-f="b:hsof" type="button">Soffiatori</button><button class="chip" data-f="b:hmul" type="button">Multifunzione</button><button class="chip" data-f="b:htra" type="button">Trattorini</button><button class="chip" data-f="b:hzap" type="button">Motozappe</button><button class="chip" data-f="b:hneve" type="button">Spazzaneve</button><button class="chip" data-f="b:hgen" type="button">Generatori</button><button class="chip" data-f="b:hpom" type="button">Motopompe</button></div><div class="cgrp cg-grin"><span class="cgl">Grin</span><button class="chip" data-f="b:gsp" type="button">Rasaerba a spinta</button><button class="chip" data-f="b:gse" type="button">Rasaerba semoventi</button></div></div>
 <p id="qinfo" hidden></p><div class="grid" id="prodotti"></div></div></section>
 <section id="recensioni" class="alt"><div class="wrap"><h2>{{tRec}}</h2><p class="sub">{{sRec}}</p><div class="rate" id="rate"><div class="stars big">★★★★★</div><div><b>{{gRating}} su 5</b><span>{{gCount}} recensioni su Google</span></div></div><p class="note">{{gNota}}</p><div class="grid" id="g-rec"></div><p style="margin:22px 0 0;display:flex;gap:10px;flex-wrap:wrap"><a class="btn" id="gr" target="_blank" rel="noopener">Leggi le recensioni su Google</a><a class="btn o" id="gw" target="_blank" rel="noopener">Lascia una recensione</a></p></div></section>
+<section id="newsletter"><div class="wrap"><div class="nl" id="nl"><div class="nl-side"><p class="nl-kick"><span aria-hidden="true">📬</span> Newsletter gratuita</p><h2>Il Giornale del Prato</h2><p>Consigli di stagione, novità Kress e Honda e offerte riservate agli iscritti: dal nostro laboratorio di Ciriè alla tua casella email.</p><ol class="nl-year" aria-label="Cosa ricevi durante l’anno"><li><i aria-hidden="true">🌱</i><div><b>Primavera</b><span>Il primo taglio e il tagliando del robot</span></div></li><li><i aria-hidden="true">☀️</i><div><b>Estate</b><span>Altezza di taglio giusta e prato verde anche col caldo</span></div></li><li><i aria-hidden="true">🍂</i><div><b>Autunno</b><span>Foglie, ultimo taglio e rimessaggio</span></div></li><li><i aria-hidden="true">❄️</i><div><b>Inverno</b><span>Anteprime e offerte della nuova stagione</span></div></li></ol><p class="nl-promise">Niente spam e nessun dato ceduto a terzi. Puoi cancellarti quando vuoi.</p></div>
+<div class="nl-form"><form id="nlf" novalidate><div class="nl-lawn" aria-hidden="true"><div class="nl-cut" id="nl-cut"></div><div class="nl-bot" id="nl-bot"><svg viewBox="0 0 60 44"><rect x="7" y="0.5" width="15" height="8" rx="3" fill="#161616"/><rect x="7" y="35.5" width="15" height="8" rx="3" fill="#161616"/><rect x="3" y="5" width="53" height="34" rx="15" fill="#2b2f33"/><path d="M15 9h24a13 13 0 0 1 0 26H15a7 7 0 0 1-7-7V16a7 7 0 0 1 7-7z" fill="#d7262e"/><rect x="51" y="14" width="5" height="16" rx="2.5" fill="#111"/><circle cx="18" cy="22" r="5" fill="#f3f3f3"/><circle cx="18" cy="22" r="3" fill="#d7262e"/><text x="27" y="24.6" font-family="Arial,Helvetica,sans-serif" font-size="7" font-weight="700" fill="#fff" letter-spacing=".4">KRESS</text></svg></div><span class="nl-box">📬</span></div><p class="nl-info" id="nl-info" aria-live="polite">Compila il modulo: il robot taglia il prato a ogni passo.</p>
+<div class="nl-two"><div><label class="nl-l" for="nl-n">Come ti chiami? <span class="nl-opt">(facoltativo)</span></label><input id="nl-n" name="nome" autocomplete="given-name" maxlength="80" placeholder="Mario"></div><div><label class="nl-l" for="nl-e">La tua email</label><input id="nl-e" name="email" type="email" autocomplete="email" inputmode="email" maxlength="160" placeholder="nome@esempio.it" required aria-describedby="nl-info"></div></div>
+<fieldset><legend>Cosa vuoi ricevere?</legend><div class="nl-cons" id="nl-cons">
+<div class="nl-c"><label for="nl-mk"><span class="ci" aria-hidden="true">✉️</span><span class="ct"><b>Newsletter e offerte</b><small>Consigli, novità e promozioni del negozio via email.</small></span><span class="nl-sw"><input type="checkbox" id="nl-mk" role="switch"><i></i></span></label></div>
+<div class="nl-c"><label for="nl-pr"><span class="ci" aria-hidden="true">🔧</span><span class="ct"><b>Promemoria assistenza</b><small>Ti avvisiamo quando è ora di tagliando o rimessaggio.</small></span><span class="nl-sw"><input type="checkbox" id="nl-pr" role="switch" aria-controls="nl-prm"><i></i></span></label><div class="nl-more" id="nl-prm" hidden><label class="nl-l" for="nl-mc">Che macchina hai? <span class="nl-opt">(facoltativo)</span></label><input id="nl-mc" maxlength="120" placeholder="Es. Kress KR233E, rasaerba Honda HRX 476"></div></div>
+<div class="nl-c"><label for="nl-pf"><span class="ci" aria-hidden="true">🎯</span><span class="ct"><b>Consigli su misura</b><small>Usiamo gli argomenti che scegli per mandarti solo ciò che ti interessa.</small></span><span class="nl-sw"><input type="checkbox" id="nl-pf" role="switch" aria-controls="nl-pfm"><i></i></span></label><div class="nl-more" id="nl-pfm" hidden><p id="nl-tl">Cosa ti interessa? Tocca uno o più argomenti.</p><div class="nl-tags" id="nl-tags" role="group" aria-labelledby="nl-tl"><button type="button" class="nl-tag" aria-pressed="false">Robot rasaerba</button><button type="button" class="nl-tag" aria-pressed="false">Attrezzi a batteria</button><button type="button" class="nl-tag" aria-pressed="false">Rasaerba e trattorini</button><button type="button" class="nl-tag" aria-pressed="false">Decespugliatori e motoseghe</button><button type="button" class="nl-tag" aria-pressed="false">Cura del prato</button><button type="button" class="nl-tag" aria-pressed="false">Promozioni</button></div></div></div>
+</div></fieldset>
+<div class="nl-priv"><input type="checkbox" id="nl-ok" required><label for="nl-ok">Ho letto l’<button type="button" class="nl-link" id="nl-inf">informativa privacy</button> e autorizzo il trattamento dei miei dati per i servizi che ho scelto. <b>(obbligatorio)</b></label></div>
+<div class="nl-hp" aria-hidden="true"><label for="nl-w">Lascia vuoto</label><input id="nl-w" tabindex="-1" autocomplete="off"></div>
+<div class="nl-go"><button class="btn" type="submit" id="nl-go">Iscrivimi 🌱</button><p class="nl-msg" id="nl-msg" role="status"></p></div>
+<p class="nl-fine">I consensi sono facoltativi e separati: scegli almeno una tra newsletter e promemoria. Puoi cambiarli o revocarli in ogni momento scrivendo a {{email}}.</p></form>
+<div class="nl-done" id="nl-done" hidden tabindex="-1"><div class="big" aria-hidden="true">🌿📬</div><h3 id="nl-dt">Iscrizione completata!</h3><p>Il robot ha finito il prato e la tua iscrizione è nella cassetta. A presto con il primo numero del Giornale del Prato.</p><ul id="nl-dl"></ul><button type="button" class="btn o" id="nl-again">Cambia le tue scelte</button></div></div></div></div></section>
 <section id="contatti"><div class="wrap contact"><div><h2>{{tContatti}}</h2><p class="sub">{{sContatti}}</p>
 <div class="info"><p><b>Telefono</b>{{telefono}}</p><p><b>Email</b>{{email}}</p><p><b>Indirizzo</b>{{indirizzo}}</p><p><b>Orari</b>{{orari}}</p></div>
 <div class="map" id="mappa" role="img" aria-label="Mappa: {{indirizzo}}"><svg class="mfb" aria-hidden="true" viewBox="0 0 400 190" preserveAspectRatio="xMidYMid slice"><rect width="400" height="190" fill="var(--soft)"></rect><rect x="250" y="20" width="120" height="70" rx="10" fill="var(--accent)" opacity=".25"></rect><g stroke="var(--card)" stroke-linecap="round"><path d="M0 120h400" stroke-width="14"></path><path d="M150 0v190" stroke-width="14"></path><path d="M0 50l400 40" stroke-width="8"></path><path d="M290 100v90" stroke-width="8"></path></g></svg><div class="mtiles" id="mtiles" aria-hidden="true"></div><svg class="mpin" viewBox="0 0 32 42" aria-hidden="true"><path d="M16 41C6 27 1 21 1 15a15 15 0 1 1 30 0c0 6-5 12-15 26z" fill="#e53935" stroke="#fff" stroke-width="2"/><circle cx="16" cy="15" r="5.5" fill="#fff"/></svg><div class="mact"><a class="btn" id="m1" target="_blank" rel="noopener">Apri in Maps</a><a class="btn o" id="m2" target="_blank" rel="noopener">Indicazioni</a></div><a class="mosm" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap</a></div></div>
@@ -736,9 +849,64 @@ function admin(){
    catch(e){ms.textContent="Salvataggio non riuscito: "+((e&&e.message)||(e&&e.code)||"errore")}};
   bar.appendChild(sv);bar.appendChild(cn);bar.appendChild(ms);box.appendChild(bar);o.innerHTML="";o.appendChild(box);box.scrollTop=old}
 }
+function initNewsletter(){
+ var f=$("nlf");if(!f)return;var nl=$("nl"),VER="NL-2026-11";
+ var em=$("nl-e"),nm=$("nl-n"),mk=$("nl-mk"),pr=$("nl-pr"),pf=$("nl-pf"),ok=$("nl-ok"),msg=$("nl-msg"),info=$("nl-info"),go=$("nl-go");
+ var tags=[].slice.call(document.querySelectorAll("#nl-tags .nl-tag"));
+ var isMail=function(v){return /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(v)};
+ var nome=function(){return nm.value.trim().split(/\s+/)[0]||""};
+ function passo(){var e=isMail(em.value.trim()),s=mk.checked||pr.checked,p=0;
+  if(nm.value.trim())p+=15;if(e)p+=35;if(s)p+=25;if(ok.checked)p+=25;
+  var t=!e?"Scrivi la tua email: il robot parte!":!s?"Ottimo"+(nome()?", "+nome():"")+"! Ora scegli cosa vuoi ricevere.":!ok.checked?"Ci sei quasi: manca solo l’ok all’informativa privacy.":"Prato tagliato! Premi <b>Iscrivimi</b> e il robot consegna la tua iscrizione.";
+  info.innerHTML=t;$("nl-cut").style.width=p+"%";$("nl-bot").style.left="calc(6px + "+p+"% - "+(p*1.16)+"px)";nl.classList.toggle("full",p===100)}
+ function apri(c,box){$(box).hidden=!c.checked}
+ mk.onchange=passo;pr.onchange=function(){apri(pr,"nl-prm");passo()};pf.onchange=function(){apri(pf,"nl-pfm")};ok.onchange=function(){ok.parentNode.classList.remove("nl-bad");passo()};
+ [em,nm].forEach(function(i){i.addEventListener("input",function(){i.classList.remove("nl-bad");passo()})});
+ tags.forEach(function(b){b.onclick=function(){b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")==="true"?"false":"true")}});
+ /* informativa privacy (art. 13 GDPR) */
+ var d=document.createElement("div");d.className="nl-dlg";d.hidden=true;d.setAttribute("role","dialog");d.setAttribute("aria-modal","true");d.setAttribute("aria-labelledby","nl-it");
+ var tit=esc(CFG.ditta)+(CFG.indirizzo?", "+esc(CFG.indirizzo):"")+(CFG.piva?", P.IVA "+esc(CFG.piva):"");
+ d.innerHTML='<div><button type="button" class="skx" aria-label="Chiudi l’informativa">×</button><h3 id="nl-it">Informativa privacy – Newsletter</h3><p>Ai sensi dell’art. 13 del Regolamento UE 2016/679 (GDPR). Versione '+VER+'.</p>'+
+  '<h4>Titolare del trattamento</h4><p>'+tit+'. Email '+esc(CFG.email)+(CFG.telefono?", telefono "+esc(CFG.telefono):"")+'.</p>'+
+  '<h4>Quali dati trattiamo</h4><p>L’indirizzo email, il nome se lo indichi, la macchina che possiedi se la indichi, gli argomenti che scegli, i consensi espressi con data e ora.</p>'+
+  '<h4>Perché e su quale base</h4><ul><li><b>Newsletter e offerte</b>: invio di consigli, novità e promozioni del negozio. Base: il tuo consenso.</li><li><b>Promemoria assistenza</b>: avvisi per tagliandi, rimessaggio e manutenzione. Base: il tuo consenso.</li><li><b>Consigli su misura</b>: scelta dei contenuti in base agli argomenti indicati (profilazione). Base: il tuo consenso specifico.</li><li>Conservazione della prova dei consensi e delle revoche, per adempiere agli obblighi del GDPR.</li></ul><p>Ogni consenso è facoltativo e separato: senza email non possiamo iscriverti, senza gli altri consensi riceverai solo ciò che hai scelto. Non prendiamo decisioni automatizzate che ti riguardano.</p>'+
+  '<h4>Chi vede i dati</h4><p>Solo il titolare e i fornitori tecnici che ospitano il sito e i dati (es. Cloudflare), nominati responsabili del trattamento, anche fuori dall’UE con le garanzie previste dal GDPR. I dati non vengono venduti né ceduti a terzi.</p>'+
+  '<h4>Per quanto tempo</h4><p>Finché resti iscritto o fino alla revoca del consenso. Dopo la revoca conserviamo solo la prova del consenso e della revoca, per il tempo necessario a dimostrarli.</p>'+
+  '<h4>I tuoi diritti</h4><p>Puoi chiedere accesso, rettifica, cancellazione, limitazione, portabilità dei dati e opporti al trattamento; puoi revocare i consensi in qualsiasi momento, senza conseguenze sui trattamenti già fatti, scrivendo a '+esc(CFG.email)+'. Puoi anche presentare reclamo al Garante per la protezione dei dati personali (garanteprivacy.it).</p></div>';
+ document.body.appendChild(d);
+ function chiudi(){d.hidden=true;document.body.classList.remove("lb-on");$("nl-inf").focus()}
+ $("nl-inf").onclick=function(e){e.preventDefault();d.hidden=false;document.body.classList.add("lb-on");d.querySelector(".skx").focus()};
+ d.addEventListener("click",function(e){if(e.target===d||e.target.closest(".skx"))chiudi()});
+ document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!d.hidden)chiudi()});
+ function foglie(){if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;var L=["🍃","🌿","🍀","🌱"];
+  for(var i=0;i<26;i++){var s=document.createElement("span");s.className="nl-leaf";s.textContent=L[i%4];s.style.left=Math.random()*100+"vw";
+   s.style.setProperty("--dx",(Math.random()*160-80)+"px");s.style.setProperty("--r",(Math.random()*720-360)+"deg");
+   s.style.animationDuration=(2.4+Math.random()*2)+"s";s.style.animationDelay=(Math.random()*.8)+"s";document.body.appendChild(s);
+   setTimeout(function(x){return function(){x.remove()}}(s),5200)}}
+ function errore(t,el){msg.className="nl-msg err";msg.textContent=t;if(el){el.classList.add("nl-bad");if(el.focus)el.focus()}}
+ f.addEventListener("submit",async function(e){e.preventDefault();msg.className="nl-msg";msg.textContent="";
+  var mail=em.value.trim();
+  if(!isMail(mail))return errore("Controlla l’indirizzo email: sembra incompleto.",em);
+  if(!mk.checked&&!pr.checked)return errore("Scegli almeno una cosa da ricevere: newsletter o promemoria.",mk);
+  if(!ok.checked){errore("Per iscriverti serve l’ok all’informativa privacy.",ok.parentNode);ok.focus();return}
+  var scelti=pf.checked?tags.filter(function(b){return b.getAttribute("aria-pressed")==="true"}).map(function(b){return b.textContent}):[];
+  var body={email:mail,nome:nm.value.trim(),marketing:mk.checked,promemoria:pr.checked,profilazione:pf.checked,interessi:scelti,macchina:pr.checked?$("nl-mc").value.trim():"",privacy:true,versione:VER,sito:$("nl-w").value};
+  go.disabled=true;msg.textContent="Il robot sta consegnando la tua iscrizione…";
+  try{if(!/^https?:$/.test(location.protocol)||/claude/.test(location.hostname)){var er=new Error("anteprima");er.prev=true;throw er}
+   var r=await fetch("/api/newsletter",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify(body)}),x={};
+   try{x=await r.json()}catch(pe){}
+   if(!r.ok||!x.ok)throw new Error(x.message||("errore "+r.status));
+   var lst=[];if(mk.checked)lst.push("✉️ Newsletter e offerte");if(pr.checked)lst.push("🔧 Promemoria assistenza");if(pf.checked)lst.push("🎯 Consigli su misura"+(scelti.length?": "+scelti.join(", "):""));
+   $("nl-dl").innerHTML=lst.map(function(t){return "<li>"+esc(t)+"</li>"}).join("");
+   $("nl-dt").textContent=(x.aggiornata?"Preferenze aggiornate":"Benvenuto nel prato")+(nome()?", "+nome():"")+"!";
+   f.hidden=true;$("nl-done").hidden=false;$("nl-done").focus();foglie();msg.textContent=""}
+  catch(err){errore(err&&err.prev?"Da questa anteprima l’iscrizione non parte: il modulo funziona sul sito pubblicato.":"Iscrizione non riuscita"+(err&&err.message&&!/fetch|network/i.test(err.message)?" ("+err.message+")":"")+". Riprova tra poco o scrivici a "+CFG.email+".")}
+  go.disabled=false});
+ $("nl-again").onclick=function(){$("nl-done").hidden=true;f.hidden=false;em.focus()};
+ passo()}
 function vai(h){if(location.hash==="#"+h)window.__route&&window.__route();else location.hash=h}
 function initPagine(){
- var MAP={hero:"home",meteo:"home",servizi:"home",perche:"home",recensioni:"home",riparazioni:"assistenza",marchi:"marchi",catalogo:"catalogo",contatti:"contatti"},
+ var MAP={hero:"home",meteo:"home",servizi:"home",perche:"home",recensioni:"home",newsletter:"home",riparazioni:"assistenza",marchi:"marchi",catalogo:"catalogo",contatti:"contatti"},
   PG=["home","catalogo","assistenza","marchi","contatti"],hero=document.querySelector(".hero");
  if(hero)hero.setAttribute("data-in","home");
  Object.keys(MAP).forEach(function(id){var e=$(id);if(e&&id!=="hero")e.setAttribute("data-in",MAP[id])});
@@ -754,7 +922,7 @@ function initPagine(){
   if(t)setTimeout(function(){t.scrollIntoView({behavior:"smooth",block:"start"})},30);else window.scrollTo(0,0)}
  window.__route=route;window.addEventListener("hashchange",route);route()}
 
-render();initRobot();(function(){var e=document.querySelector("#hcall b");if(e){var t=e.textContent.replace(/\s+/g,"");if(/^0\d{9}$/.test(t))e.textContent=t.slice(0,3)+" "+t.slice(3,6)+" "+t.slice(6)}})();initPagine();initZoom();initSchede();
+render();initRobot();(function(){var e=document.querySelector("#hcall b");if(e){var t=e.textContent.replace(/\s+/g,"");if(/^0\d{9}$/.test(t))e.textContent=t.slice(0,3)+" "+t.slice(3,6)+" "+t.slice(6)}})();initPagine();initZoom();initSchede();initNewsletter();
 (async function(){try{if(!window.claude||!claude.use)return;var u=await claude.use("user");if(u&&u.canEdit())admin()}catch(e){}})();
 (function(){/* statistiche anonime: niente cookie, niente dati personali; solo sul sito pubblicato */
  if(!/^https:$/.test(location.protocol)||/claude/.test(location.hostname))return;
@@ -769,6 +937,7 @@ render();initRobot();(function(){var e=document.querySelector("#hcall b");if(e){
   else if(el.hasAttribute("data-sk")){var c=el.closest(".card"),n=c&&c.querySelector("h3");l="Scheda prodotto: "+(n?n.textContent:tx)}
   else if(el.id==="sk-a")l="Chiedi informazioni (da scheda)";
   else if(el.id==="inv")l="Invia richiesta (modulo contatti)";
+   else if(el.id==="nl-go")l="Iscrizione newsletter";
   else if(el.hasAttribute("data-f"))l="Filtro catalogo: "+tx;
   else if(el.hasAttribute("data-pg"))return;
   else if(/^tel:/.test(el.getAttribute("href")||"")||el.id==="tel")l="Telefono: "+tx;
