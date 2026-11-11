@@ -606,11 +606,11 @@ header .hcall{position:relative;z-index:4}
 .offi svg{display:block;width:100%;height:auto}
 .offi figcaption{padding:10px 16px 12px;font-size:.88rem;font-weight:600;color:var(--muted,#52635a)}
 .of-braccio{transform-box:view-box;transform-origin:118px 108px;animation:ofBr 1.1s ease-in-out infinite}
-@keyframes ofBr{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(5deg)}}
+@keyframes ofBr{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(2deg)}}
 .of-testa{transform-box:view-box;transform-origin:102px 96px;animation:ofTe 2.2s ease-in-out infinite}
 @keyframes ofTe{0%,100%{transform:rotate(0)}50%{transform:rotate(4deg)}}
-.of-gear{transform-box:view-box;transform-origin:268px 116px;animation:ofGe 2.2s linear infinite}
-@keyframes ofGe{to{transform:rotate(360deg)}}
+.of-gear{transform-box:view-box;transform-origin:236px 136px;animation:ofGe 1.1s ease-in-out infinite alternate}
+@keyframes ofGe{from{transform:rotate(-20deg)}to{transform:rotate(25deg)}}
 .of-sc circle{transform-box:view-box;animation:ofSc 1.1s ease-out infinite}
 .of-sc circle:nth-child(2){animation-delay:.15s}.of-sc circle:nth-child(3){animation-delay:.3s}
 @keyframes ofSc{0%,40%{opacity:0;transform:translate(0,0)}55%{opacity:1}100%{opacity:0;transform:translate(-10px,-14px)}}
@@ -634,16 +634,26 @@ header .hcall{position:relative;z-index:4}
 <g fill="#3B3F44"><path d="M252 44h6v30h-6z"/><circle cx="255" cy="44" r="7"/><circle cx="255" cy="44" r="3" fill="#C9A274"/><rect x="276" y="42" width="5" height="22" rx="2"/><rect x="274" y="62" width="9" height="16" rx="3" fill="#B3123F"/><rect x="300" y="44" width="26" height="8" rx="2"/><rect x="310" y="50" width="5" height="28" rx="2" fill="#8B5A2B"/><path d="M340 44l18 0-3 6h-12z"/><rect x="346" y="49" width="5" height="28" rx="2" fill="#8B5A2B"/></g>
 <line x1="120" y1="0" x2="120" y2="34" stroke="#55595E" stroke-width="2"/><path d="M104 46h32l-8-14h-16z" fill="#2F6B2A"/><ellipse class="of-luce" cx="120" cy="48" rx="34" ry="7" fill="#FFE9A8"/>
 <rect x="150" y="150" width="236" height="14" rx="3" fill="#8B5A2B"/><rect x="150" y="150" width="236" height="4" rx="2" fill="#A26C38"/><rect x="164" y="164" width="12" height="72" fill="#6E4520"/><rect x="360" y="164" width="12" height="72" fill="#6E4520"/><rect x="164" y="208" width="208" height="8" fill="#6E4520"/>
-<rect x="318" y="140" width="22" height="10" rx="2" fill="#B3123F"/><rect x="321" y="136" width="16" height="5" rx="2" fill="#7E0D2C"/>
-<g class="of-robot"><ellipse cx="270" cy="150" rx="62" ry="4" fill="#000" opacity=".18"/><circle cx="226" cy="140" r="10" fill="#161616"/><circle cx="226" cy="140" r="4" fill="#666"/><circle cx="312" cy="140" r="10" fill="#161616"/><circle cx="312" cy="140" r="4" fill="#666"/>
-<path d="M214 136c0-16 14-26 34-26h44c18 0 30 10 30 24v4h-108z" fill="#2B2F33"/><path d="M230 132c2-11 12-17 26-17h30c12 0 21 6 23 17z" fill="#D7262E"/>
-<g class="of-gear"><circle cx="268" cy="116" r="8" fill="#C7CBD0"/><circle cx="268" cy="116" r="3" fill="#2B2F33"/><g fill="#C7CBD0"><rect x="266" y="104" width="4" height="5"/><rect x="266" y="123" width="4" height="5"/><rect x="256" y="114" width="5" height="4"/><rect x="275" y="114" width="5" height="4"/></g></g>
-<circle class="of-led" cx="300" cy="125" r="3.2" fill="#E53935"/></g>
-<g class="of-sc" fill="#FFC23D"><circle cx="232" cy="124" r="2.2"/><circle cx="236" cy="120" r="1.6"/><circle cx="229" cy="119" r="1.4"/></g>
+<rect x="356" y="138" width="24" height="12" rx="2" fill="#B3123F"/><rect x="360" y="134" width="16" height="5" rx="2" fill="#7E0D2C"/><rect x="356" y="142" width="24" height="2" fill="#7E0D2C"/>
+<defs><linearGradient id="ofShell" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EE4A50"/><stop offset=".55" stop-color="#D7262E"/><stop offset="1" stop-color="#A5141B"/></linearGradient><radialGradient id="ofHub" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#C9CED3"/><stop offset="1" stop-color="#7C838A"/></radialGradient></defs>
+<g class="of-robot"><ellipse cx="280" cy="150" rx="66" ry="4" fill="#000" opacity=".2"/>
+<circle cx="326" cy="142" r="8" fill="#1B1D20"/><circle cx="326" cy="142" r="3" fill="#8A9096"/>
+<path d="M218 141c0-7 4-10 10-10h100c8 0 13 4 14 10v3H218z" fill="#24272B"/>
+<path d="M222 133c0-18 22-31 52-31 33 0 57 10 66 26l2 6H222z" fill="url(#ofShell)"/>
+<path d="M232 118c10-9 25-13 42-13 19 0 35 4 46 11" stroke="#fff" stroke-opacity=".38" stroke-width="3" fill="none" stroke-linecap="round"/>
+<rect x="222" y="129" width="120" height="7" rx="3.5" fill="#2B2F33"/>
+<path d="M334 119c9 4 13 10 13 18h-7c-1-6-4-10-10-13z" fill="#1D1F22"/>
+<g stroke="#8E1219" stroke-width="2" stroke-linecap="round"><path d="M300 117l10 0"/><path d="M302 122l10 0"/><path d="M304 127l9 0"/></g>
+<rect x="252" y="103" width="44" height="12" rx="6" fill="#2B2F33"/><rect x="256" y="106" width="20" height="6" rx="2" fill="#3C6A86"/><circle class="of-led" cx="260" cy="109" r="1.8" fill="#E53935"/>
+<circle cx="288" cy="109" r="4.6" fill="#1D1F22"/><circle cx="288" cy="109" r="3.4" fill="#FF3B30"/>
+<rect x="338" y="139" width="6" height="3" rx="1.5" fill="#E0B44A"/>
+<circle cx="236" cy="136" r="15" fill="#1B1D20"/><circle cx="236" cy="136" r="13.5" fill="none" stroke="#3A3E43" stroke-width="2.5" stroke-dasharray="3 3"/>
+<g class="of-gear"><circle cx="236" cy="136" r="7" fill="url(#ofHub)"/><g stroke="#5F666D" stroke-width="1.6" stroke-linecap="round"><path d="M236 130v12"/><path d="M230 136h12"/></g><circle cx="236" cy="136" r="2" fill="#2B2F33"/></g></g>
+<g class="of-sc" fill="#FFC23D"><circle cx="228" cy="128" r="2.2"/><circle cx="232" cy="124" r="1.6"/><circle cx="225" cy="123" r="1.4"/></g>
 <g class="of-omino"><rect x="84" y="150" width="15" height="48" rx="5" fill="#1F4716"/><rect x="104" y="150" width="15" height="48" rx="5" fill="#1F4716"/><rect x="80" y="194" width="21" height="9" rx="4" fill="#2B2F33"/><rect x="102" y="194" width="21" height="9" rx="4" fill="#2B2F33"/>
 <rect x="80" y="96" width="44" height="62" rx="14" fill="#2F6B2A"/><rect x="92" y="100" width="20" height="22" rx="4" fill="#3E8E2F"/><circle cx="102" cy="110" r="2" fill="#C9E96B"/>
 <g class="of-testa"><circle cx="102" cy="80" r="17" fill="#F2C9A0"/><path d="M85 76c0-12 8-19 17-19s17 7 17 19z" fill="#B3123F"/><rect x="112" y="72" width="16" height="5" rx="2.5" fill="#8E0F33"/><circle cx="109" cy="82" r="1.8" fill="#2B2F33"/><path d="M106 89q4 3 8 0" stroke="#2B2F33" stroke-width="1.6" fill="none" stroke-linecap="round"/></g>
-<g class="of-braccio"><path d="M118 108l40 16" stroke="#2F6B2A" stroke-width="12" stroke-linecap="round"/><path d="M158 124l42 2" stroke="#F2C9A0" stroke-width="9" stroke-linecap="round"/><g fill="#9AA0A6"><rect x="196" y="122" width="26" height="6" rx="3"/><path d="M220 117h10l-3 8 3 8h-10z"/></g></g>
+<g class="of-braccio"><path d="M118 108l40 18" stroke="#2F6B2A" stroke-width="12" stroke-linecap="round"/><path d="M158 126l38 6" stroke="#F2C9A0" stroke-width="9" stroke-linecap="round"/><g fill="#A3A9AF"><rect x="192" y="129" width="30" height="6" rx="3" transform="rotate(6 192 132)"/><path d="M219 127h11l-3 8 3 8h-11z" transform="rotate(6 219 135)"/></g></g>
 <path d="M88 112l-6 40" stroke="#2F6B2A" stroke-width="11" stroke-linecap="round"/></g>
 <g class="of-fatto"><rect x="146" y="44" width="78" height="30" rx="15" fill="#fff" stroke="#3E8E2F" stroke-width="2"/><path d="M152 70l-14 6 8-10z" fill="#fff"/><text x="185" y="64" text-anchor="middle" font-family="Figtree, Arial, sans-serif" font-size="15" font-weight="700" fill="#2F6B2A">Fatto! ✓</text></g>
 </svg><figcaption>Nella nostra officina ripariamo robot e rasaerba di tutte le marche</figcaption></figure></div><div class="grid" id="g-serv"></div></div></section>
