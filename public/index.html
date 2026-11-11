@@ -233,6 +233,14 @@ header{background:color-mix(in srgb,var(--bg) 92%,transparent);border-bottom-col
 .mcats li:nth-child(4n+2){background:rgba(124,200,255,.2);border-color:rgba(124,200,255,.45)}
 .mcats li:nth-child(4n+3){background:rgba(255,211,107,.2);border-color:rgba(255,211,107,.45)}
 .mcats li:nth-child(4n+4){background:rgba(198,166,255,.2);border-color:rgba(198,166,255,.45)}
+.mcats li{padding:0;transition:transform .15s,background-color .15s,border-color .15s}
+.mcats .mcat{display:flex;align-items:center;gap:7px;margin:0;padding:7px 14px;border:0;border-radius:999px;background:none;color:inherit;font:inherit;cursor:pointer;text-align:left}
+.mcats .mcat::after{content:"\2192";opacity:.65;transition:transform .15s,opacity .15s}
+.mcats li:hover{transform:translateY(-1px);background-color:rgba(255,255,255,.3);border-color:rgba(255,255,255,.6)}
+.mcats li:hover .mcat::after{transform:translateX(3px);opacity:1}
+.mcats .mcat:focus-visible{outline:3px solid var(--fresh);outline-offset:2px}
+#qinfo a{color:var(--accent);margin-left:4px}
+@media (prefers-reduced-motion:reduce){.mcats li,.mcats .mcat::after{transition:none}}
 .info b::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;background:linear-gradient(140deg,var(--c1a),var(--c1b))}
 .info p:nth-child(2) b::before{background:linear-gradient(140deg,var(--c2a),var(--c2b))}
 .info p:nth-child(3) b::before{background:linear-gradient(140deg,var(--c4a),var(--c4b))}
@@ -700,9 +708,10 @@ var esc=function(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){re
 var br=function(s){return esc(s).replace(/\n/g,"<br>")};
 var fill=function(id,a,fn){$(id).innerHTML=a.map(fn).join("")};
 var card=function(x){return '<div class="card"><div class="ico">'+esc(x.i)+'</div><h3>'+esc(x.t)+'</h3><p>'+esc(x.d)+'</p></div>'};
-var Q="",CUR="all";var norm=function(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")};
-function show(f){CUR=f;var ws=norm(Q).split(/\s+/).filter(Boolean);var L=CFG.prodotti.filter(function(x){return f==="all"||(f.indexOf("b:")===0?String(x.g||String(x.n||"").split(" ")[0]).toLowerCase()===f.slice(2):x.s===f)}).filter(function(x){if(!ws.length)return true;var t=norm([x.n,x.d,x.m].join(" ")),t2=t.replace(/[\s.\-]/g,"");return ws.every(function(w){return t.indexOf(w)>=0||t2.indexOf(w.replace(/[.\-]/g,""))>=0})});
- var qi=$("qinfo");if(qi){qi.hidden=!ws.length;qi.textContent=L.length?(L.length===1?"1 prodotto trovato":L.length+" prodotti trovati")+" per «"+Q.trim()+"»":"Nessun prodotto trovato per «"+Q.trim()+"». Prova con un’altra parola o scrivici: ti aiutiamo noi."}
+var Q="",CUR="all",FL="";var norm=function(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")};
+function passa(x,f){return f==="all"||(f.indexOf("b:")===0?f.slice(2).split(",").indexOf(String(x.g||String(x.n||"").split(" ")[0]).toLowerCase())>=0:f.indexOf("n:")===0?norm(x.n).indexOf(norm(f.slice(2)))>=0:x.s===f)}
+function show(f){CUR=f;var ws=norm(Q).split(/\s+/).filter(Boolean);var L=CFG.prodotti.filter(function(x){return passa(x,f)}).filter(function(x){if(!ws.length)return true;var t=norm([x.n,x.d,x.m].join(" ")),t2=t.replace(/[\s.\-]/g,"");return ws.every(function(w){return t.indexOf(w)>=0||t2.indexOf(w.replace(/[.\-]/g,""))>=0})});
+ var qi=$("qinfo");if(qi&&!ws.length&&FL){qi.hidden=false;qi.innerHTML=esc(FL)+": "+(L.length===1?"1 prodotto":L.length+" prodotti")+' · <a href="#catalogo" id="qall">mostra tutto il catalogo</a>'}else if(qi){qi.hidden=!ws.length;qi.textContent=L.length?(L.length===1?"1 prodotto trovato":L.length+" prodotti trovati")+" per «"+Q.trim()+"»":"Nessun prodotto trovato per «"+Q.trim()+"». Prova con un’altra parola o scrivici: ti aiutiamo noi."}
  $("prodotti").innerHTML=L.map(function(x){
  return '<div class="card">'+(x.f||String(x.i)==="1"?'<div class="pimg ph"><img src="'+(x.f||CFG.foto)+'" alt="'+esc(x.n)+'"></div>':'<div class="pimg">'+(x.i&&String(x.i)!=="1"?esc(x.i):"🤖")+'</div>')+'<h3>'+esc(x.n)+'</h3><p>'+esc(x.d)+'</p><p><b>'+esc(x.m)+'</b></p><div class="price">'+esc(x.p)+'</div><div class="cbtn"><button class="btn" type="button" data-m="'+esc(x.n)+'">Chiedi informazioni</button>'+(String(x.t||"").trim()?'<button class="btn o" type="button" data-sk="'+CFG.prodotti.indexOf(x)+'">Scheda prodotto</button>':'')+'</div></div>'}).join("")}
 function render(){
@@ -718,9 +727,10 @@ function render(){
  $("gr").href=CFG.gUrl||"#";$("gw").href=CFG.gScrivi||"#";if(!CFG.gRating)$("rate").style.display="none";
  $("m2").href="https://www.google.com/maps/dir/?api=1&destination="+q;
  show("all");
- $("q").addEventListener("input",function(){Q=this.value;if(Q.trim()){document.querySelectorAll(".chip").forEach(function(c){c.classList.toggle("on",c.getAttribute("data-f")==="all")});CUR="all"}show(CUR)});
- $("sform").addEventListener("submit",function(e){e.preventDefault();Q=$("q").value;show(CUR);vai("catalogo")});
- $("chips").addEventListener("click",function(e){var b=e.target.closest(".chip");if(!b)return;
+ $("q").addEventListener("input",function(){Q=this.value;FL="";if(Q.trim()){document.querySelectorAll(".chip").forEach(function(c){c.classList.toggle("on",c.getAttribute("data-f")==="all")});CUR="all"}show(CUR)});
+ $("sform").addEventListener("submit",function(e){e.preventDefault();FL="";Q=$("q").value;show(CUR);vai("catalogo")});
+ $("qinfo").addEventListener("click",function(e){if(!e.target.closest("#qall"))return;e.preventDefault();FL="";document.querySelectorAll(".chip").forEach(function(c){c.classList.toggle("on",c.getAttribute("data-f")==="all")});show("all")});
+ $("chips").addEventListener("click",function(e){var b=e.target.closest(".chip");if(!b)return;FL="";
   document.querySelectorAll(".chip").forEach(function(c){c.classList.toggle("on",c===b)});show(b.getAttribute("data-f"))});
  $("prodotti").addEventListener("click",function(e){var b=e.target.closest("[data-m]");if(!b)return;
   $("r").value="Acquisto di un robot rasaerba";$("m").value="Vorrei informazioni sul modello "+b.getAttribute("data-m")+".";
@@ -762,16 +772,24 @@ var L={chiave:"Chiave Web3Forms (facoltativa: se vuota le richieste arrivano all
 var LS={prodotti:{n:"Nome modello",s:"Fascia (s = piccoli, m = medi, l = grandi)",m:"Superficie",p:"Prezzo",d:"Descrizione",i:"Foto principale (1 = sì, vuoto = icona) oppure un’emoji",g:"Gruppo per i pulsanti del catalogo (vuoto = marca dal nome; k40 = Kress 40V; k60 = Kress 60V Professional; hbat = Honda a batteria; hras = Rasaerba Honda; hdec = Decespugliatori Honda; htos = Tosasiepi Honda; hsof = Soffiatori Honda; hmul = Multifunzione Honda; htra = Trattorini Honda; hzap = Motozappe Honda; hneve = Spazzaneve Honda; hgen = Generatori Honda; hpom = Motopompe Honda; gsp = Grin a spinta; gse = Grin semoventi)",t:"Scheda prodotto (una riga per voce, es. Motore: Honda GX 160)"},recensioni:{t:"Titolo",d:"Testo",w:"Autore"},marchi:{n:"Nome del marchio",d:"Descrizione",c:"Prodotti trattati (separati da virgola)"},galleria:{d:"Didascalia"}};
 var LD={t:"Titolo",d:"Testo",i:"Icona (emoji)"};
 var KEYS={vantaggi:["t"],servizi:["i","t","d"],prodotti:["n","g","s","m","p","d","t","f","i"],passi:["t","d"],perche:["i","t","d"],recensioni:["t","d","w"],marchi:["n","f","d","c"],galleria:["f","d"]};
+function mFiltro(nm,lab){var l=norm(lab),R={kress:[["eyepilot","n:EyePilot"],["mega","n:Mega"],["rtk","n:Robot RTK"],["robot","b:kress"],["batteria","b:k40,k60"],["attrezz","b:k40,k60"]],
+ honda:[["miimo","b:honda"],["robot","b:honda"],["batteria","b:hbat"],["rasaerba","b:hras"],["decespugl","b:hdec"],["tosasiep","b:htos"],["tagliasiep","b:htos"],["soffiat","b:hsof"],["multifunz","b:hmul"],["trattorin","b:htra"],["motozapp","b:hzap"],["spazzanev","b:hneve"],["generator","b:hgen"],["motopomp","b:hpom"]],
+ grin:[["spinta","b:gsp"],["semovent","b:gse"],["rasaerba","b:gsp,gse"]]}[norm(nm).trim()]||[];
+ for(var i=0;i<R.length;i++)if(l.indexOf(R[i][0])>=0){var f=R[i][1];return (CFG.prodotti||[]).some(function(x){return passa(x,f)})?f:""}return ""}
 function initMarchi(){var m=CFG.marchi||[],t=$("mtabs"),pn=$("mpanel");if(!t)return;if(!m.length){$("marchi").style.display="none";return}
  t.innerHTML=m.map(function(x,i){return '<button type="button" role="tab" id="mt'+i+'" aria-controls="mpanel" aria-selected="'+(i?'false':'true')+'" tabindex="'+(i?'-1':'0')+'"><span class="mth'+(x.f?'':' noimg')+'" aria-hidden="true">'+(x.f?'<img src="'+x.f+'" alt="">':esc(String(x.n||"?").charAt(0)))+'</span><span class="mnm">'+esc(x.n)+'</span></button>'}).join("");
  var b=t.querySelectorAll("button");
  function sel(i,f){var x=m[i];b.forEach(function(e,j){e.setAttribute("aria-selected",j===i?"true":"false");e.tabIndex=j===i?0:-1});
   var cs=String(x.c||"").split(",").map(function(y){return y.trim()}).filter(Boolean);
-  pn.setAttribute("aria-labelledby","mt"+i);pn.setAttribute("data-n",x.n||"");
-  pn.innerHTML='<div class="mbody"><div class="mhead">'+(x.f?'<span class="mpic-w"><img class="mpic" src="'+x.f+'" alt="'+esc(x.n)+'"></span>':'')+'<h3>'+esc(x.n)+'</h3></div><p>'+esc(x.d)+'</p>'+(cs.length?'<p class="mlab">Da noi trovi</p><ul class="mcats">'+cs.map(function(y){return '<li>'+esc(y)+'</li>'}).join("")+'</ul>':'')+'<button type="button" class="btn" id="mask">Chiedi informazioni su '+esc(x.n)+'</button></div>';
+  pn.setAttribute("aria-labelledby","mt"+i);pn.setAttribute("data-i",i);pn.setAttribute("data-n",x.n||"");
+  pn.innerHTML='<div class="mbody"><div class="mhead">'+(x.f?'<span class="mpic-w"><img class="mpic" src="'+x.f+'" alt="'+esc(x.n)+'"></span>':'')+'<h3>'+esc(x.n)+'</h3></div><p>'+esc(x.d)+'</p>'+(cs.length?'<p class="mlab">Da noi trovi</p><ul class="mcats">'+cs.map(function(y){var f=mFiltro(x.n,y);return '<li><button type="button" class="mcat" data-f="'+esc(f)+'" title="'+(f?'Vedi i prodotti nel catalogo':'Chiedi informazioni')+'">'+esc(y)+'</button></li>'}).join("")+'</ul>':'')+'<button type="button" class="btn" id="mask">Chiedi informazioni su '+esc(x.n)+'</button></div>';
   pn.classList.remove("in");void pn.offsetWidth;pn.classList.add("in");
   $("mask").onclick=function(){var mm=$("m");if(mm&&!mm.value)mm.value="Vorrei informazioni sui prodotti "+x.n+".";location.hash="contatti";setTimeout(function(){if($("n"))$("n").focus()},400)};
   if(f)b[i].focus()}
+ pn.addEventListener("click",function(e){var c=e.target.closest(".mcat");if(!c)return;var x=m[+pn.getAttribute("data-i")]||{},lab=c.textContent,f=c.getAttribute("data-f");
+  if(f){FL=x.n+" · "+lab;Q="";if($("q"))$("q").value="";document.querySelectorAll(".chip").forEach(function(h){h.classList.toggle("on",h.getAttribute("data-f")===f)});show(f);vai("catalogo");
+   setTimeout(function(){var qi=$("qinfo");if(qi)qi.scrollIntoView({behavior:"smooth",block:"start"})},120)}
+  else{var mm=$("m");if(mm)mm.value="Vorrei informazioni su "+lab+" "+x.n+".";vai("contatti");setTimeout(function(){if($("n"))$("n").focus()},400)}});
  b.forEach(function(e,i){e.onclick=function(){sel(i)};e.onkeydown=function(ev){var k=ev.key,d=(k==="ArrowRight"||k==="ArrowDown")?1:(k==="ArrowLeft"||k==="ArrowUp")?-1:0;if(d){ev.preventDefault();sel((i+d+b.length)%b.length,true)}}});sel(0)}
 function initMeteo(){var bar=$("meteo"),box=$("wx");if(!box)return;var lat=parseFloat(String(CFG.meteoLat||"").replace(",",".")),lon=parseFloat(String(CFG.meteoLon||"").replace(",","."));
  if(!isFinite(lat)||!isFinite(lon))return;
