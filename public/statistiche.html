@@ -55,6 +55,9 @@ tr:last-child td{border-bottom:0}
 button.del{color:#c62828;border-color:color-mix(in srgb,#c62828 40%,var(--border))}button.del.sure{background:#c62828;color:#fff;border-color:#c62828}
 .req .acts a{border:1px solid var(--border);border-radius:999px;text-decoration:none;color:var(--fg);font-weight:600}
 .note{color:var(--muted);font-size:.88rem;margin-top:20px}
+.nlk{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0 0 10px;color:var(--muted);font-size:.92rem}.nlk b{color:var(--fg);font-family:var(--fd);font-size:1.15rem}
+.tag{display:inline-block;font-size:.78rem;font-weight:600;padding:1px 9px;border-radius:999px;background:var(--soft);margin-right:4px}.tag.off{background:none;border:1px solid var(--border);color:var(--muted);text-decoration:line-through}
+.req.rev{opacity:.6}
 </style>
 </head>
 <body>
@@ -90,6 +93,14 @@ button.del{color:#c62828;border-color:color-mix(in srgb,#c62828 40%,var(--border
       <div class="rqh"><h2>Richieste dal modulo contatti <span id="rq-n" class="badge" hidden></span></h2>
       <div class="per" role="group" aria-label="Elenco richieste"><button type="button" data-v="0" aria-pressed="true">Da gestire</button><button type="button" data-v="1" aria-pressed="false">Archivio <span id="rq-a"></span></button></div></div>
       <div id="rq"></div>
+    </section>
+
+    <section class="box rq">
+      <div class="rqh"><h2>Iscritti alla newsletter <span id="nl-n" class="badge" hidden></span></h2>
+      <div class="per"><button type="button" id="nl-csv">Scarica CSV</button><button type="button" id="nl-cp">Copia email newsletter</button></div></div>
+      <div class="nlk" id="nl-k"></div>
+      <div class="per" role="group" aria-label="Filtro iscritti" style="margin-bottom:6px"><button type="button" data-nf="tutti" aria-pressed="true">Attivi</button><button type="button" data-nf="marketing" aria-pressed="false">Newsletter</button><button type="button" data-nf="promemoria" aria-pressed="false">Promemoria</button><button type="button" data-nf="revocati" aria-pressed="false">Revocati</button></div>
+      <div id="nl"></div>
     </section>
 
     <div class="kpi">
@@ -193,8 +204,43 @@ button.del{color:#c62828;border-color:color-mix(in srgb,#c62828 40%,var(--border
   }
   document.querySelectorAll("[data-v]").forEach(function(b){b.addEventListener("click",function(){VIEW=+b.dataset.v;richieste()})});
 
+  var NL=[],NF="tutti";
+  function nlFiltro(x){return NF==="revocati"?!!x.revocato:!x.revocato&&(NF==="tutti"||x[NF])}
+  async function nlAz(id,a){await fetch("/api/iscritti",{method:"POST",headers:{Authorization:"Bearer "+PW,"Content-Type":"application/json"},body:JSON.stringify({id:id,azione:a})});iscritti()}
+  function dataIt(s){return String(s||"").replace(/^(\d+)-(\d+)-(\d+) /,"$3/$2/$1 ore ")}
+  async function iscritti(){
+    var el=$("nl");
+    try{var r=await fetch("/api/iscritti",{headers:{Authorization:"Bearer "+PW},cache:"no-store"});if(!r.ok)throw 0;NL=(await r.json()).iscritti||[]}
+    catch(e){el.textContent="Non riesco a caricare gli iscritti.";return}
+    var att=NL.filter(function(x){return !x.revocato}),c=function(k){return att.filter(function(x){return x[k]}).length};
+    var sett=new Date(Date.now()-7*86400000).toISOString().slice(0,10),nuovi=att.filter(function(x){return x.iscritto>=sett}).length;
+    $("nl-n").hidden=!nuovi;$("nl-n").textContent=nuovi+" nuovi in 7 giorni";
+    $("nl-k").innerHTML="<span><b>"+att.length+"</b> attivi</span><span><b>"+c("marketing")+"</b> newsletter</span><span><b>"+c("promemoria")+"</b> promemoria</span><span><b>"+c("profilazione")+"</b> consigli su misura</span><span><b>"+(NL.length-att.length)+"</b> revocati</span>";
+    document.querySelectorAll("[data-nf]").forEach(function(b){b.setAttribute("aria-pressed",String(b.dataset.nf===NF))});
+    var L=NL.filter(nlFiltro);el.textContent="";
+    if(!L.length){var e0=document.createElement("p");e0.className="empty";e0.textContent=NL.length?"Nessun iscritto in questo elenco.":"Ancora nessun iscritto: il modulo è nella Home del sito.";el.appendChild(e0);return}
+    L.forEach(function(x){var d=document.createElement("div");d.className="req"+(x.revocato?" rev":"");
+      var top=document.createElement("div");top.className="top";var b=document.createElement("b");b.textContent=x.email;top.appendChild(b);
+      var m=document.createElement("span");m.className="meta";m.textContent=(x.nome?x.nome+" · ":"")+"iscritto il "+dataIt(x.iscritto)+(x.aggiornato!==x.iscritto?" · aggiornato il "+dataIt(x.aggiornato):"")+(x.revocato?" · revocato il "+dataIt(x.revocato):"");top.appendChild(m);d.appendChild(top);
+      var t=document.createElement("div");[["marketing","Newsletter"],["promemoria","Promemoria"],["profilazione","Su misura"]].forEach(function(k){var s=document.createElement("span");s.className="tag"+(x[k[0]]?"":" off");s.textContent=k[1];t.appendChild(s)});
+      var v=document.createElement("span");v.className="meta";v.textContent=" Privacy accettata ("+(x.versione||"–")+")";t.appendChild(v);d.appendChild(t);
+      if(x.interessi){var i=document.createElement("div");i.textContent="Interessi: "+x.interessi;d.appendChild(i)}
+      if(x.macchina){var mc=document.createElement("div");mc.textContent="Macchina: "+x.macchina;d.appendChild(mc)}
+      var a=document.createElement("div");a.className="acts";var ma=document.createElement("a");ma.href="mailto:"+x.email;ma.textContent="Scrivi";a.appendChild(ma);
+      if(!x.revocato){var rv=btn("Registra revoca consensi","",function(){if(!rv.classList.contains("sure")){rv.classList.add("sure");rv.textContent="Conferma revoca";return}rv.disabled=true;nlAz(x.id,"revoca")});a.appendChild(rv)}
+      var del=btn("Elimina","del",function(){if(!del.classList.contains("sure")){del.classList.add("sure");del.textContent="Conferma: elimina per sempre";return}del.disabled=true;nlAz(x.id,"elimina")});a.appendChild(del);
+      d.appendChild(a);el.appendChild(d)});
+  }
+  document.querySelectorAll("[data-nf]").forEach(function(b){b.addEventListener("click",function(){NF=b.dataset.nf;iscritti()})});
+  $("nl-csv").addEventListener("click",function(){var K=["email","nome","marketing","promemoria","profilazione","interessi","macchina","versione","iscritto","aggiornato","revocato"];
+    var q=function(v){v=v==null?"":String(v);if(/^[=+\-@]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"'};
+    var csv="\ufeff"+K.join(";")+"\r\n"+NL.map(function(x){return K.map(function(k){return q(x[k])}).join(";")}).join("\r\n");
+    var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="iscritti-newsletter.csv";document.body.appendChild(a);a.click();a.remove()});
+  $("nl-cp").addEventListener("click",async function(){var s=NL.filter(function(x){return !x.revocato&&x.marketing}).map(function(x){return x.email}).join(", "),b=this;
+    try{await navigator.clipboard.writeText(s);b.textContent="Copiate! Incollale in Ccn"}catch(e){prompt("Copia gli indirizzi (da mettere in Ccn):",s)}setTimeout(function(){b.textContent="Copia email newsletter"},3000)});
+
   async function show(){
-    try{var d=await load();$("login").hidden=true;$("app").hidden=false;store(PW);draw(d);richieste()}
+    try{var d=await load();$("login").hidden=true;$("app").hidden=false;store(PW);draw(d);richieste();iscritti()}
     catch(e){store("");$("app").hidden=true;$("login").hidden=false;$("le").textContent=e.message}
   }
 

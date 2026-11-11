@@ -101,6 +101,80 @@ async function contatto(request, env) {
   return Response.json({ success: "true", salvata: Boolean(id), email });
 }
 
+// --- Newsletter "Il Giornale del Prato" ---
+// Le iscrizioni si salvano in D1 con i consensi separati (privacy, marketing, profilazione, promemoria),
+// data e versione dell'informativa, così il titolare ha la prova del consenso. Una seconda iscrizione con la
+// stessa email aggiorna le scelte. Il titolare le vede ed esporta dalla pagina riservata /statistiche.
+const NL_TABLE = `CREATE TABLE IF NOT EXISTS newsletter (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT NOT NULL UNIQUE,
+  nome TEXT NOT NULL DEFAULT '',
+  marketing INTEGER NOT NULL DEFAULT 0,
+  promemoria INTEGER NOT NULL DEFAULT 0,
+  profilazione INTEGER NOT NULL DEFAULT 0,
+  interessi TEXT NOT NULL DEFAULT '',
+  macchina TEXT NOT NULL DEFAULT '',
+  versione TEXT NOT NULL DEFAULT '',
+  iscritto TEXT NOT NULL,
+  aggiornato TEXT NOT NULL,
+  revocato TEXT
+)`;
+const EMAIL_RE = /^[^@\s]{1,64}@[^@\s]+\.[a-z]{2,}$/i;
+const adesso = () => new Date().toLocaleString("sv-SE", { timeZone: "Europe/Rome" }).slice(0, 16);
+
+async function newsletter(request, env) {
+  if (request.method !== "POST") return Response.json({ ok: false, message: "Metodo non consentito" }, { status: 405 });
+  if (!env.STATS) return Response.json({ ok: false, message: "Servizio non disponibile" }, { status: 503 });
+  let d;
+  try {
+    d = await request.json();
+  } catch {
+    return Response.json({ ok: false, message: "Richiesta non valida" }, { status: 400 });
+  }
+  // Campo nascosto compilato solo dai robot di spam: si risponde "ok" senza salvare.
+  if (String(d.sito || "").trim()) return Response.json({ ok: true });
+  const email = pulisci(d.email, 160).toLowerCase();
+  const marketing = d.marketing === true, promemoria = d.promemoria === true, profilazione = d.profilazione === true;
+  if (!EMAIL_RE.test(email)) return Response.json({ ok: false, message: "Email non valida" }, { status: 400 });
+  if (d.privacy !== true) return Response.json({ ok: false, message: "Serve l'ok all'informativa privacy" }, { status: 400 });
+  if (!marketing && !promemoria) return Response.json({ ok: false, message: "Scegli newsletter o promemoria" }, { status: 400 });
+  const interessi = profilazione && Array.isArray(d.interessi) ? d.interessi.slice(0, 12).map((x) => pulisci(x, 40)).filter(Boolean).join(", ") : "";
+  const macchina = promemoria ? pulisci(d.macchina, 120) : "";
+  const quando = adesso();
+  await env.STATS.prepare(NL_TABLE).run();
+  const prima = await env.STATS.prepare("SELECT id FROM newsletter WHERE email = ?1").bind(email).first();
+  await env.STATS.prepare(
+    `INSERT INTO newsletter (email, nome, marketing, promemoria, profilazione, interessi, macchina, versione, iscritto, aggiornato)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?9)
+     ON CONFLICT(email) DO UPDATE SET nome = CASE WHEN excluded.nome <> '' THEN excluded.nome ELSE nome END,
+       marketing = excluded.marketing, promemoria = excluded.promemoria, profilazione = excluded.profilazione,
+       interessi = excluded.interessi, macchina = excluded.macchina, versione = excluded.versione,
+       aggiornato = excluded.aggiornato, revocato = NULL`
+  )
+    .bind(email, pulisci(d.nome, 80), +marketing, +promemoria, +profilazione, interessi, macchina, pulisci(d.versione, 20), quando)
+    .run();
+  return Response.json({ ok: true, aggiornata: Boolean(prima) });
+}
+
+// Elenco iscritti per la pagina riservata (stessa password delle statistiche).
+async function iscritti(request, env) {
+  if (!(await autorizzato(request, env))) return Response.json({ error: "Password errata" }, { status: 401 });
+  await env.STATS.prepare(NL_TABLE).run();
+  if (request.method === "POST") {
+    const { id, azione } = await request.json().catch(() => ({}));
+    const sql = {
+      revoca: "UPDATE newsletter SET revocato = ?2, marketing = 0, promemoria = 0, profilazione = 0, aggiornato = ?2 WHERE id = ?1",
+      elimina: "DELETE FROM newsletter WHERE id = ?1",
+    }[azione];
+    if (!id || !sql) return Response.json({ error: "Azione non valida" }, { status: 400 });
+    const st = env.STATS.prepare(sql);
+    await (azione === "revoca" ? st.bind(Number(id), adesso()) : st.bind(Number(id))).run();
+    return Response.json({ ok: true });
+  }
+  const { results } = await env.STATS.prepare("SELECT * FROM newsletter ORDER BY id DESC LIMIT 5000").all();
+  return Response.json({ iscritti: results }, { headers: { "Cache-Control": "no-store" } });
+}
+
 // --- Statistiche visite (senza cookie e senza salvare indirizzi IP) ---
 // Il sito invia a /api/hit eventi anonimi (pagina vista, clic, visita); qui si sommano per giorno in D1.
 // Solo il titolare legge i totali da /statistiche.html, con la password il cui hash SHA-256 è in STATS_HASH.
@@ -197,6 +271,8 @@ export default {
     if (pathname === "/api/meteo") return meteo(request, ctx);
     if (pathname === "/api/contatto") return contatto(request, env);
     if (pathname === "/api/richieste") return richieste(request, env);
+    if (pathname === "/api/newsletter") return newsletter(request, env);
+    if (pathname === "/api/iscritti") return iscritti(request, env);
     if (pathname === "/api/hit") return hit(request, env);
     if (pathname === "/api/stats") return stats(request, env);
     return env.ASSETS.fetch(request);
