@@ -175,6 +175,52 @@ async function iscritti(request, env) {
   return Response.json({ iscritti: results }, { headers: { "Cache-Control": "no-store" } });
 }
 
+// --- Disiscrizione pubblica dalla newsletter ---
+// Il link nelle email porta a /disiscrizione?email=indirizzo: la pagina revoca subito i consensi
+// (come "Registra revoca consensi" nel pannello) e l'iscritto compare tra i "Revocati" in /statistiche.
+// Senza email nel link, la pagina chiede di scriverla. La risposta è sempre la stessa, così non si
+// rivela chi è iscritto e chi no.
+async function disiscrivi(request, env) {
+  if (request.method !== "POST") return Response.json({ ok: false, message: "Metodo non consentito" }, { status: 405 });
+  if (!env.STATS) return Response.json({ ok: false, message: "Servizio non disponibile" }, { status: 503 });
+  const d = await request.json().catch(() => ({}));
+  const email = pulisci(d.email, 160).toLowerCase();
+  if (!EMAIL_RE.test(email)) return Response.json({ ok: false, message: "Email non valida" }, { status: 400 });
+  await env.STATS.prepare(NL_TABLE).run();
+  const quando = adesso();
+  await env.STATS.prepare(
+    "UPDATE newsletter SET revocato = ?2, marketing = 0, promemoria = 0, profilazione = 0, aggiornato = ?2 WHERE email = ?1 AND revocato IS NULL"
+  )
+    .bind(email, quando)
+    .run();
+  return Response.json({ ok: true });
+}
+
+const PAGINA_DISISCRIZIONE = `<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex"><title>Disiscrizione newsletter · Panerogarden</title>
+<style>
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f3ece0;font-family:Georgia,serif;color:#3b2a1a;padding:20px;box-sizing:border-box}
+.c{max-width:460px;width:100%;background:#fffaf2;border-radius:14px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.08)}
+.h{background:#2f4a2c;color:#fff;text-align:center;padding:26px 20px}.h b{display:block;font:13px Arial,sans-serif;letter-spacing:3px;color:#e9c46a;text-transform:uppercase;margin-bottom:6px}
+.h h1{margin:0;font-weight:normal;font-size:24px}.b{padding:26px 28px;font-size:16px;line-height:24px}
+input{width:100%;box-sizing:border-box;padding:12px;border:1px solid #cdbba0;border-radius:8px;font-size:16px;margin:8px 0 14px}
+button{width:100%;padding:13px;border:0;border-radius:30px;background:#d9822b;color:#fff;font:bold 15px Arial,sans-serif;cursor:pointer}
+button:disabled{opacity:.6}a{color:#2f4a2c}.ok{text-align:center}.ok div{font-size:40px}.err{color:#a33;font-size:14px}
+</style></head><body><div class="c"><div class="h"><b>Panerogarden · Ciriè</b><h1>Newsletter</h1></div><div class="b" id="b">
+<form id="f"><p>Vuoi smettere di ricevere la nostra newsletter? Scrivi la tua email e conferma.</p>
+<label for="e">La tua email</label><input id="e" type="email" required autocomplete="email">
+<button id="go">Cancella l'iscrizione</button><p class="err" id="er" hidden></p></form></div></div>
+<script>
+var f=document.getElementById("f"),e=document.getElementById("e"),go=document.getElementById("go"),er=document.getElementById("er");
+async function invia(){go.disabled=true;go.textContent="Un momento…";er.hidden=true;
+  try{var r=await fetch("/api/disiscrizione",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:e.value})});var j=await r.json();if(!j.ok)throw new Error(j.message||"Errore")}
+  catch(x){er.textContent=(x&&x.message?x.message:"Errore")+". Riprova, oppure scrivici a panerogardencenter@gmail.com.";er.hidden=false;go.disabled=false;go.textContent="Cancella l'iscrizione";return}
+  document.getElementById("b").innerHTML='<div class="ok"><div>🍂</div><p><strong>Fatto: sei stato disiscritto.</strong></p><p>Non riceverai più la nostra newsletter. Ci dispiace vederti andare: il negozio resta sempre aperto per te!</p><p>Ci hai ripensato? <a href="/">Puoi iscriverti di nuovo dal sito</a>.</p></div>'}
+f.addEventListener("submit",function(ev){ev.preventDefault();invia()});
+var m=new URLSearchParams(location.search).get("email");if(m){e.value=m;invia()}
+</script></body></html>`;
+
 // --- Statistiche visite (senza cookie e senza salvare indirizzi IP) ---
 // Il sito invia a /api/hit eventi anonimi (pagina vista, clic, visita); qui si sommano per giorno in D1.
 // Solo il titolare legge i totali da /statistiche.html, con la password il cui hash SHA-256 è in STATS_HASH.
@@ -273,6 +319,12 @@ export default {
     if (pathname === "/api/richieste") return richieste(request, env);
     if (pathname === "/api/newsletter") return newsletter(request, env);
     if (pathname === "/api/iscritti") return iscritti(request, env);
+    if (pathname === "/api/disiscrizione") return disiscrivi(request, env);
+    if (pathname === "/disiscrizione") {
+      return new Response(PAGINA_DISISCRIZIONE, {
+        headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" },
+      });
+    }
     if (pathname === "/api/hit") return hit(request, env);
     if (pathname === "/api/stats") return stats(request, env);
     return env.ASSETS.fetch(request);
