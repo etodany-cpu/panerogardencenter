@@ -26,6 +26,7 @@ h2{font-family:var(--fd);font-size:1.15rem;margin:0 0 10px}
 .eye .sl{display:none}.eye[aria-pressed="true"] .sl{display:inline}
 input{font:inherit;padding:11px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--fg)}
 button{font:inherit;font-weight:600;cursor:pointer;border-radius:999px;padding:9px 16px;border:1px solid var(--border);background:var(--card);color:var(--fg)}
+a.btn{font-weight:600;border-radius:999px;padding:9px 16px;border:1px solid var(--border);background:var(--card);color:var(--fg);text-decoration:none;display:inline-block}
 button.pri{background:var(--base);color:#fff;border-color:var(--base)}
 button[aria-pressed="true"]{background:var(--base);color:#fff;border-color:var(--base)}
 button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
@@ -101,7 +102,7 @@ button.del{color:#c62828;border-color:color-mix(in srgb,#c62828 40%,var(--border
 
     <section class="box rq">
       <div class="rqh"><h2>Iscritti alla newsletter <span id="nl-n" class="badge" hidden></span></h2>
-      <div class="per"><button type="button" id="nl-csv">Scarica CSV</button><button type="button" id="nl-cp">Copia email newsletter</button></div></div>
+      <div class="per"><button type="button" id="nl-csv">Scarica CSV</button><button type="button" id="nl-cp">Copia email newsletter</button><a class="btn" href="/disiscrizione" target="_blank" rel="noopener" title="Apre la pagina pubblica dove i clienti cancellano l'iscrizione">Pagina disiscrizioni ↗</a></div></div>
       <div class="nlk" id="nl-k"></div>
       <div class="per" role="group" aria-label="Filtro iscritti" style="margin-bottom:6px"><button type="button" data-nf="tutti" aria-pressed="true">Attivi</button><button type="button" data-nf="marketing" aria-pressed="false">Newsletter</button><button type="button" data-nf="promemoria" aria-pressed="false">Promemoria</button><button type="button" data-nf="revocati" aria-pressed="false">Revocati</button></div>
       <div id="nl"></div>
