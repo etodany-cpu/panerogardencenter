@@ -1274,6 +1274,10 @@ function initNewsletter(){
 /* ===== Negozio online: catalogo e pagamento da Stripe tramite il Worker del sito (/api/negozio) ===== */
 function initNegozio(){
  var sec=$("negozio");if(!sec)return;
+ /* Negozio online nascosto finché i pagamenti veri non sono attivi: mettere true per mostrarlo. */
+ var NEGOZIO_VISIBILE=false;
+ if(!NEGOZIO_VISIBILE){sec.remove();["ngz-fab","ngz-dr","ngz-dim","ngz-dlg"].forEach(function(i){var e=$(i);if(e)e.remove()});
+  var l=document.querySelector('.sl[data-pg="negozio"]');if(l)l.remove();if(location.hash==="#negozio")location.hash="home";return}
  var API="/api/negozio";
  var prova=/claude|claudeusercontent/.test(location.hostname)||!/^https?:$/.test(location.protocol);
  var KEY="pg_carrello",P=[],C={},CONS="ritiro",busy=false;
