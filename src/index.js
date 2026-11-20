@@ -1,4 +1,5 @@
 import { PAGINE, pagina, immagine } from "./pagine.js";
+import { negozio } from "./negozio.js";
 // Worker del sito Panero Garden Center.
 // Serve i file statici di public/ e fa da tramite per le previsioni meteo di MET Norway,
 // così il browser non deve chiamare direttamente api.met.no e i dati restano in cache.
@@ -314,6 +315,7 @@ export default {
     }
     if (PAGINE[pathname]) return pagina(request, env);
     if (pathname.startsWith("/img/")) return immagine(request, env);
+    if (pathname.startsWith("/api/negozio/")) return negozio(request, env, pathname);
     if (pathname === "/api/meteo") return meteo(request, ctx);
     if (pathname === "/api/contatto") return contatto(request, env);
     if (pathname === "/api/richieste") return richieste(request, env);
