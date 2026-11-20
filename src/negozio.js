@@ -136,7 +136,8 @@ async function webhook(request, env) {
   }
   const evento = JSON.parse(corpo);
   if (evento.type !== "checkout.session.completed") return new Response("ok");
-  const s = evento.data.object;
+  // Si rilegge la sessione con la versione API del Worker: il formato non dipende da quella del webhook.
+  const s = await stripe(env, "GET", `/checkout/sessions/${evento.data.object.id}`);
   if (s.payment_status !== "paid") return new Response("ok");
 
   // Stripe può rimandare lo stesso evento: si gestisce una volta sola.
@@ -164,7 +165,7 @@ async function webhook(request, env) {
   if (s.payment_intent) await stripe(env, "POST", `/payment_intents/${s.payment_intent}`, { "metadata[scorte_aggiornate]": "si" });
 
   const c = s.customer_details || {};
-  const sp = s.shipping_details || {};
+  const sp = s.shipping_details || (s.collected_information && s.collected_information.shipping_details) || {};
   const ind = sp.address || {};
   const consegna = s.metadata.consegna === "spedizione"
     ? `SPEDIZIONE a ${sp.name || c.name || ""}, ${[ind.line1, ind.line2].filter(Boolean).join(" ")}, ${ind.postal_code || ""} ${ind.city || ""} (${ind.state || ""})`
