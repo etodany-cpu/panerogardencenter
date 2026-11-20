@@ -20,6 +20,7 @@ const NEGOZIO_INDIRIZZO = "Via San Maurizio 157, Ciriè (TO)";
 export async function negozio(request, env, pathname) {
   try {
     if (pathname === "/api/negozio/prodotti" && request.method === "GET") return await prodottiPubblici(env);
+    if (pathname === "/api/negozio/stato" && request.method === "GET") return await stato(env);
     if (pathname === "/api/negozio/checkout" && request.method === "POST") return await checkout(request, env);
     if (pathname === "/api/negozio/webhook" && request.method === "POST") return await webhook(request, env);
     return Response.json({ errore: "Non trovato" }, { status: 404 });
@@ -27,6 +28,28 @@ export async function negozio(request, env, pathname) {
     console.error("negozio:", err);
     return Response.json({ errore: "Il negozio online non risponde, riprova tra poco." }, { status: 503 });
   }
+}
+
+/* ---------- controllo del collegamento (non mostra le chiavi) ---------- */
+
+async function stato(env) {
+  const k = String(env.STRIPE_SECRET_KEY || "");
+  const out = {
+    chiave: !k ? "mancante" : k.startsWith("sk_test_") ? "test" : k.startsWith("sk_live_") ? "live" : k.startsWith("rk_") ? "limitata" : "formato non riconosciuto",
+    webhook: env.STRIPE_WEBHOOK_SECRET ? (String(env.STRIPE_WEBHOOK_SECRET).startsWith("whsec_") ? "presente" : "formato non riconosciuto") : "mancante",
+  };
+  if (k) {
+    try {
+      const a = await stripe(env, "GET", "/account");
+      out.account = a.id;
+      const p = await stripe(env, "GET", "/products", { active: "true", limit: "100" });
+      out.prodotti_attivi = p.data.length;
+      out.prodotti_online = p.data.filter((x) => (x.metadata.online || "").toLowerCase().trim() === "si").length;
+    } catch (e) {
+      out.errore = String(e.message || e).slice(0, 160);
+    }
+  }
+  return Response.json(out, { headers: { "Cache-Control": "no-store" } });
 }
 
 /* ---------- catalogo ---------- */
