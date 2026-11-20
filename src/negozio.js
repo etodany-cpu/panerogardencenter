@@ -21,6 +21,7 @@ export async function negozio(request, env, pathname) {
   try {
     if (pathname === "/api/negozio/prodotti" && request.method === "GET") return await prodottiPubblici(env);
     if (pathname === "/api/negozio/stato" && request.method === "GET") return await stato(env);
+    if (pathname === "/api/negozio/prova-email" && request.method === "GET") return await provaEmail(request, env);
     if (pathname === "/api/negozio/checkout" && request.method === "POST") return await checkout(request, env);
     if (pathname === "/api/negozio/webhook" && request.method === "POST") return await webhook(request, env);
     return Response.json({ errore: "Non trovato" }, { status: 404 });
@@ -36,6 +37,8 @@ async function stato(env) {
   const k = String(env.STRIPE_SECRET_KEY || "");
   const out = {
     chiave: !k ? "mancante" : k.startsWith("sk_test_") ? "test" : k.startsWith("sk_live_") ? "live" : k.startsWith("rk_") ? "limitata" : "formato non riconosciuto",
+    email: env.RESEND_API_KEY ? "Resend" : "FormSubmit",
+    ultimo_invio_email: ultimoInvio,
     webhook: env.STRIPE_WEBHOOK_SECRET ? (String(env.STRIPE_WEBHOOK_SECRET).startsWith("whsec_") ? "presente" : "formato non riconosciuto") : "mancante",
   };
   if (k) {
@@ -50,6 +53,14 @@ async function stato(env) {
     }
   }
   return Response.json(out, { headers: { "Cache-Control": "no-store" } });
+}
+
+let ultimaProva = 0;
+async function provaEmail(request, env) {
+  if (Date.now() - ultimaProva < 60000) return Response.json({ ok: false, messaggio: "Aspetta un minuto tra una prova e l'altra." }, { status: 429 });
+  ultimaProva = Date.now();
+  const ok = await email(env, request, "✅ Prova email negozio online", { Messaggio: "Se leggi questa email, gli avvisi del negozio online funzionano." });
+  return Response.json({ ok, esito: ultimoInvio }, { headers: { "Cache-Control": "no-store" } });
 }
 
 /* ---------- catalogo ---------- */
@@ -250,19 +261,48 @@ async function stripe(env, metodo, percorso, params = {}) {
   return dati;
 }
 
-// Email al negozio con FormSubmit, come per il modulo contatti.
+// Email al negozio: con Resend se c'è la chiave RESEND_API_KEY (Secret su Cloudflare), altrimenti FormSubmit.
+// Senza un dominio proprio Resend invia da onboarding@resend.dev e consegna solo all'email dell'account Resend,
+// quindi l'account Resend va creato con lo stesso indirizzo di EMAIL_NEGOZIO.
+// L'esito dell'ultimo invio si vede in /api/negozio/stato.
+let ultimoInvio = "nessuno";
+
 async function email(env, request, oggetto, campi) {
   const to = String(env.EMAIL_NEGOZIO || "").trim();
-  if (!to) return;
+  if (!to) return false;
+  const testo = Object.entries(campi).map(([k, v]) => `${k}:\n${v}`).join("\n\n");
   try {
+    if (env.RESEND_API_KEY) {
+      const html = Object.entries(campi)
+        .map(([k, v]) => `<p><b>${esc(k)}</b><br>${esc(v).replace(/\n/g, "<br>")}</p>`).join("");
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ from: "Negozio Panerogarden <onboarding@resend.dev>", to: [to], subject: oggetto, html, text: testo }),
+        signal: AbortSignal.timeout(8000),
+      });
+      const j = await res.json().catch(() => ({}));
+      ultimoInvio = res.ok ? `ok (Resend) ${new Date().toISOString()}` : `errore Resend ${res.status}: ${String(j.message || "").slice(0, 120)}`;
+      return res.ok;
+    }
     const origin = new URL(request.url).origin;
-    await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(to)}`, {
+    const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(to)}`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json", Origin: origin, Referer: origin + "/" },
       body: JSON.stringify({ ...campi, _subject: oggetto, _template: "box", _captcha: "false" }),
       signal: AbortSignal.timeout(8000),
     });
+    const j = await res.json().catch(() => ({}));
+    const ok = res.ok && String(j.success) === "true";
+    ultimoInvio = ok ? `ok (FormSubmit) ${new Date().toISOString()}` : `errore FormSubmit ${res.status}: ${String(j.message || "").slice(0, 120)}`;
+    return ok;
   } catch (e) {
+    ultimoInvio = `errore: ${String(e.message || e).slice(0, 120)}`;
     console.error("email negozio:", e);
+    return false;
   }
+}
+
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
