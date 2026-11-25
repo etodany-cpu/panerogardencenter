@@ -75,7 +75,7 @@ async function caricaProdotti(env) {
       id: p.id,
       nome: p.name,
       descrizione: p.description || "",
-      immagine: (p.images && p.images[0]) || "",
+      immagine: (p.metadata.foto || "").trim() || (p.images && p.images[0]) || "",
       prezzo: p.default_price.unit_amount,
       spedizione: euroInCentesimi(p.metadata.spedizione),
       disponibili: Math.max(0, parseInt(p.metadata.scorta || "0", 10) || 0),
@@ -149,7 +149,10 @@ async function checkout(request, env) {
   });
   if (consegna === "spedizione") {
     params["shipping_address_collection[allowed_countries][0]"] = "IT";
-    params["shipping_options[0][shipping_rate_data][display_name]"] = "Spedizione con corriere (Italia)";
+    params["shipping_options[0][shipping_rate_data][display_name]"] = righe[0].p.spedizione === 0
+      ? "Spedizione gratuita con corriere (Italia, isole escluse)"
+      : "Spedizione con corriere (Italia, isole escluse)";
+    params["custom_text[shipping_address][message]"] = "Spediamo in Italia, isole escluse. Per Sicilia, Sardegna e isole minori chiedi un preventivo dal sito.";
     params["shipping_options[0][shipping_rate_data][fixed_amount][amount]"] = String(righe[0].p.spedizione);
   } else {
     params["billing_address_collection"] = "required";
@@ -201,11 +204,13 @@ async function webhook(request, env) {
   const c = s.customer_details || {};
   const sp = s.shipping_details || (s.collected_information && s.collected_information.shipping_details) || {};
   const ind = sp.address || {};
+  const cap = String(ind.postal_code || "").trim();
+  const isola = s.metadata.consegna === "spedizione" && /^(9[0-8]|0[789])\d{3}$/.test(cap);
   const consegna = s.metadata.consegna === "spedizione"
     ? `SPEDIZIONE a ${sp.name || c.name || ""}, ${[ind.line1, ind.line2].filter(Boolean).join(" ")}, ${ind.postal_code || ""} ${ind.city || ""} (${ind.state || ""})`
     : "RITIRO IN NEGOZIO";
   const totale = ((s.amount_total || 0) / 100).toLocaleString("it-IT", { style: "currency", currency: "EUR" });
-  const testo = `Totale pagato: ${totale}\nConsegna: ${consegna}\n\nArticoli:\n${righe.join("\n")}` +
+  const testo = (isola ? `⚠️ ATTENZIONE: indirizzo in Sicilia o Sardegna (CAP ${cap}). Le isole sono escluse dalla spedizione: contatta il cliente.\n\n` : "") + `Totale pagato: ${totale}\nConsegna: ${consegna}\n\nArticoli:\n${righe.join("\n")}` +
     (avvisi.length ? `\n\nMagazzino:\n${avvisi.join("\n")}` : "") + `\n\nRif. Stripe: ${s.id}`;
   const contatto = [c.name, c.email, c.phone].filter(Boolean).join(" · ");
 

@@ -690,6 +690,7 @@ header .hcall{position:relative;z-index:4}
 .ngz-note{padding:12px 16px;border-radius:16px;margin:0 0 20px;font-size:.95rem;background:color-mix(in srgb,#ffd36b 22%,var(--card));border:1px solid color-mix(in srgb,#f39a12 40%,var(--border))}
 .ngz-note.ok{background:color-mix(in srgb,var(--base) 12%,var(--card));border-color:color-mix(in srgb,var(--base) 45%,var(--border))}
 .ngz-note[hidden]{display:none}
+#ngz-grid{grid-template-columns:repeat(auto-fill,minmax(240px,320px))}
 #ngz-grid .card{display:flex;flex-direction:column;overflow:hidden}
 #ngz-grid .card>.pimg.ph{margin:-26px -26px 16px;height:auto;aspect-ratio:1/1;border-radius:0;background:#fff;overflow:hidden;display:block}
 #ngz-grid .card>.pimg.ph img{display:block;width:100%;height:100%;object-fit:contain}
@@ -934,7 +935,7 @@ header .hcall{position:relative;z-index:4}
 <p class="nl-fine">I consensi sono facoltativi e separati: scegli almeno una tra newsletter e promemoria. Puoi cambiarli o revocarli in ogni momento scrivendo a {{email}}.</p></form>
 <div class="nl-done" id="nl-done" hidden tabindex="-1"><div class="big" aria-hidden="true">🌿📬</div><h3 id="nl-dt">Iscrizione completata!</h3><p>Il robot ha finito il prato e la tua iscrizione è nella cassetta. A presto con il primo numero del Giornale del Prato.</p><ul id="nl-dl"></ul><button type="button" class="btn o" id="nl-again">Cambia le tue scelte</button></div></div></div></div></section>
 <section id="negozio"><div class="wrap"><div class="ngz-head"><div><h2>L’angolo delle occasioni</h2><p class="sub">Alcuni nostri articoli si possono comprare direttamente qui: paghi con carta e scegli se ritirarli gratis in negozio o riceverli a casa.</p></div><button class="btn o" type="button" data-ngz="apri">🛒 Carrello</button></div>
-<div class="ngz-pts"><span>🔒 Pagamento sicuro con carta</span><span>🏬 Ritiro gratuito a Ciriè</span><span>🚚 Spedizione in tutta Italia</span></div>
+<div class="ngz-pts"><span>🔒 Pagamento sicuro con carta</span><span>🏬 Ritiro gratuito a Ciriè</span><span>🚚 Spedizione in Italia (isole escluse)</span></div>
 <p class="ngz-note" id="ngz-msg" hidden></p><div class="grid" id="ngz-grid"><p class="sub">Caricamento articoli…</p></div>
 <p class="ngz-cond">Prima di acquistare leggi le <button type="button" data-ngz="cond">condizioni di vendita, recesso e garanzia</button>.</p></div></section>
 <button class="btn ngz-fab" id="ngz-fab" type="button" data-ngz="apri" hidden>🛒 Carrello <i id="ngz-n">0</i></button>
@@ -1305,7 +1306,7 @@ function initNegozio(){
    return '<div class="card">'+(p.immagine?'<div class="pimg ph"><img src="'+esc(p.immagine)+'" alt="'+esc(p.nome)+'" loading="lazy"></div>':'<div class="pimg">🛒</div>')+
     '<h3>'+esc(p.nome)+'</h3><p class="ngz-d">'+esc(p.descrizione)+'</p>'+
     (out?'<span class="ngz-b out">Esaurito</span>':p.disponibili<=2?'<span class="ngz-b lo">'+(p.disponibili===1?'Ultimo pezzo':'Ultimi '+p.disponibili+' pezzi')+'</span>':'')+
-    '<div class="price">'+eur(p.prezzo)+'</div><p class="ngz-sp">'+(p.spedizione==null?'Solo ritiro in negozio':p.spedizione===0?'Spedizione gratuita in Italia · o ritiro in negozio':'Spedizione '+eur(p.spedizione)+' · ritiro gratis')+'</p>'+
+    '<div class="price">'+eur(p.prezzo)+'</div><p class="ngz-sp">'+(p.spedizione==null?'Solo ritiro in negozio':p.spedizione===0?'Spedizione gratuita in Italia (isole escluse) · o ritiro in negozio':'Spedizione '+eur(p.spedizione)+' (isole escluse) · ritiro gratis')+'</p>'+
     '<button class="btn" type="button" data-ngz-add="'+esc(p.id)+'"'+(out?' disabled':'')+'>'+(out?'Esaurito':'Aggiungi al carrello')+'</button></div>'}).join("");
   aggiorna()}
 
@@ -1313,13 +1314,14 @@ function initNegozio(){
   var ids=Object.keys(C).filter(byId),n=0;ids.forEach(function(id){n+=C[id]});$("ngz-n").textContent=n;fab.hidden=!n;
   if(!ids.length){body.innerHTML='<p class="sub">Il carrello è vuoto.</p>'+(m||"");foot.innerHTML="";return}
   var sub=0,solo=false;ids.forEach(function(id){var p=byId(id);sub+=p.prezzo*C[id];if(p.spedizione==null)solo=true});
-  if(solo&&CONS==="spedizione")CONS="ritiro";
-  var prev=CONS==="spedizione"&&n>1,sp=CONS==="ritiro"?0:(n===1?byId(ids[0]).spedizione:null);
+  if(solo&&CONS!=="ritiro")CONS="ritiro";
+  var isole=CONS==="isole",prev=(CONS==="spedizione"&&n>1)||isole,sp=CONS==="ritiro"?0:(!isole&&n===1?byId(ids[0]).spedizione:null);
   var h=ids.map(function(id){var p=byId(id);return '<div class="ngz-r"><div class="nm">'+esc(p.nome)+'<small>'+eur(p.prezzo)+' cad.</small></div><div class="ngz-q"><button type="button" data-ngz-q="-1" data-id="'+esc(id)+'" aria-label="Uno in meno">−</button><b>'+C[id]+'</b><button type="button" data-ngz-q="1" data-id="'+esc(id)+'" aria-label="Uno in più">+</button></div><button class="ngz-del" type="button" data-ngz-del="'+esc(id)+'">Togli</button></div>'}).join("");
   h+='<fieldset><legend>Consegna</legend><label class="ngz-o"><input type="radio" name="ngz-c" value="ritiro"'+(CONS==="ritiro"?" checked":"")+'><span><b>Ritiro in negozio – gratis</b><small>'+esc(CFG.indirizzo||"")+'. Ti avvisiamo quando è pronto.</small></span></label>'+
-   '<label class="ngz-o"><input type="radio" name="ngz-c" value="spedizione"'+(CONS==="spedizione"?" checked":"")+(solo?" disabled":"")+'><span><b>Spedizione in Italia</b><small>'+(solo?"Non disponibile: nel carrello c’è un articolo solo da ritirare.":n===1?(byId(ids[0]).spedizione===0?"Gratuita":"Costo: "+eur(byId(ids[0]).spedizione)):"Con più articoli calcoliamo noi il costo e ti rispondiamo.")+'</small></span></label></fieldset>';
+   '<label class="ngz-o"><input type="radio" name="ngz-c" value="spedizione"'+(CONS==="spedizione"?" checked":"")+(solo?" disabled":"")+'><span><b>Spedizione in Italia (isole escluse)</b><small>'+(solo?"Non disponibile: nel carrello c’è un articolo solo da ritirare.":n===1?(byId(ids[0]).spedizione===0?"Gratuita":"Costo: "+eur(byId(ids[0]).spedizione)):"Con più articoli calcoliamo noi il costo e ti rispondiamo.")+'</small></span></label>'+
+   '<label class="ngz-o"><input type="radio" name="ngz-c" value="isole"'+(isole?" checked":"")+(solo?" disabled":"")+'><span><b>Spedizione nelle isole</b><small>Sicilia, Sardegna e isole minori: il costo lo calcoliamo noi e ti rispondiamo.</small></span></label></fieldset>';
   h+='<div class="ngz-tot"><div><span>Articoli</span><span>'+eur(sub)+'</span></div><div><span>'+(CONS==="ritiro"?"Ritiro in negozio":"Spedizione")+'</span><span>'+(sp==null?"da calcolare":sp===0?"gratis":eur(sp))+'</span></div><div class="t"><span>Totale</span><span>'+(sp==null?eur(sub)+" + sped.":eur(sub+sp))+'</span></div></div>';
-  if(prev)h+='<div class="ngz-m">Hai scelto più articoli da spedire: <b>calcoliamo noi il costo esatto</b> della spedizione e ti mandiamo per email il link per pagare.</div>'+
+  if(prev)h+='<div class="ngz-m">'+(isole?'Per le isole':'Hai scelto più articoli da spedire:')+' <b>calcoliamo noi il costo esatto</b> della spedizione e ti mandiamo per email il link per pagare.</div>'+
    '<form class="ngz-pf" id="ngz-pf"><label for="ngz-fn">Nome e cognome</label><input id="ngz-fn" name="Nome" required autocomplete="name"><div class="ngz-2"><div><label for="ngz-fe">Email</label><input id="ngz-fe" name="email" type="email" required autocomplete="email"></div><div><label for="ngz-ft">Telefono</label><input id="ngz-ft" name="Telefono" required autocomplete="tel"></div></div>'+
    '<label for="ngz-fa">Indirizzo</label><input id="ngz-fa" name="Indirizzo" required autocomplete="street-address"><div class="ngz-2"><div><label for="ngz-fc">CAP</label><input id="ngz-fc" name="CAP" required pattern="[0-9]{5}" inputmode="numeric" autocomplete="postal-code"></div><div><label for="ngz-fz">Città e provincia</label><input id="ngz-fz" name="Citta" required autocomplete="address-level2"></div></div>'+
    '<label for="ngz-fx">Note <span style="font-weight:400;color:var(--muted)">(facoltative)</span></label><textarea id="ngz-fx" name="Note" style="min-height:60px"></textarea></form>';
@@ -1344,7 +1346,7 @@ function initNegozio(){
   if(prova){aggiorna('<div class="ngz-m">Anteprima: sul sito pubblicato la richiesta arriva alla vostra email con questi articoli:<br>'+br(el)+'</div>');return}
   var key=String(CFG.chiave||"").trim();if(!key){aggiorna('<div class="ngz-m err">Invio non disponibile: chiamaci al '+esc(CFG.telefono||"")+'.</div>');return}
   b.disabled=true;b.textContent="Invio…";
-  var fd=new FormData(f);fd.append("access_key",key);fd.append("subject","Richiesta costo spedizione – L’angolo delle occasioni");fd.append("from_name",CFG.ditta||"Negozio online");fd.append("Articoli",el);
+  var fd=new FormData(f);fd.append("access_key",key);fd.append("subject","Richiesta costo spedizione – L’angolo delle occasioni");fd.append("from_name",CFG.ditta||"Negozio online");fd.append("Articoli",el);fd.append("Consegna",CONS==="isole"?"Spedizione nelle isole":"Spedizione in Italia (più articoli)");
   fetch("https://api.web3forms.com/submit",{method:"POST",body:fd,headers:{Accept:"application/json"}}).then(function(r){return r.json()})
    .then(function(d){if(String(d.success)!=="true")throw new Error();C={};salva();aggiorna('<div class="ngz-m"><b>Richiesta inviata!</b> Ti rispondiamo al più presto con il costo di spedizione e il link per pagare.</div>')})
    .catch(function(){b.disabled=false;b.textContent="Richiedi il costo di spedizione";alert("Invio non riuscito. Riprova o chiamaci al "+(CFG.telefono||"")+".")})}
@@ -1354,7 +1356,7 @@ function initNegozio(){
    '<h4>1. Venditore</h4><p>'+dati+'.</p>'+
    '<h4>2. Prezzi</h4><p>I prezzi sono in euro, IVA inclusa. Il costo di spedizione è indicato per ciascun articolo prima del pagamento. Per ordini di più articoli da spedire il costo viene comunicato da noi su richiesta e il cliente decide se procedere.</p>'+
    '<h4>3. Pagamento</h4><p>Il pagamento avviene con carta tramite la piattaforma sicura Stripe: non riceviamo né conserviamo i dati della carta. Il contratto è concluso alla conferma del pagamento, di cui il cliente riceve ricevuta via email.</p>'+
-   '<h4>4. Ritiro e spedizione</h4><p><b>Ritiro in negozio:</b> gratuito, negli orari di apertura ('+br(c.orari||"")+'), dopo la nostra comunicazione che l’articolo è pronto.<br><b>Spedizione:</b> con corriere, solo in Italia, di norma in pochi giorni lavorativi: ti comunichiamo i tempi quando confermiamo l’ordine. Alla consegna controlla l’integrità del pacco e segnala eventuali danni al corriere.</p>'+
+   '<h4>4. Ritiro e spedizione</h4><p><b>Ritiro in negozio:</b> gratuito, negli orari di apertura ('+br(c.orari||"")+'), dopo la nostra comunicazione che l’articolo è pronto.<br><b>Spedizione:</b> con corriere, solo in Italia; per Sicilia, Sardegna e isole minori il costo è su preventivo e le offerte di spedizione gratuita non valgono. Di norma in pochi giorni lavorativi: ti comunichiamo i tempi quando confermiamo l’ordine. Alla consegna controlla l’integrità del pacco e segnala eventuali danni al corriere.</p>'+
    '<h4>5. Diritto di recesso</h4><p>Il cliente consumatore può recedere entro 14 giorni dalla consegna o dal ritiro, senza indicarne il motivo, scrivendo a '+esc(c.email||"")+'. Il prodotto va restituito integro e nella confezione originale entro 14 giorni dalla comunicazione; le spese di restituzione sono a carico del cliente. Rimborsiamo il prezzo e le spese di consegna iniziali entro 14 giorni con lo stesso metodo di pagamento; possiamo attendere di aver ricevuto indietro il prodotto.</p>'+
    '<h4>6. Garanzia</h4><p>Tutti i prodotti hanno la garanzia legale di conformità di 24 mesi prevista dal Codice del Consumo, oltre alle eventuali garanzie del produttore. Per l’assistenza puoi rivolgerti direttamente al nostro laboratorio.</p>'+
    '<h4>7. Dati personali</h4><p>Usiamo i dati del cliente solo per gestire l’ordine, la consegna e gli obblighi di legge. Il pagamento è gestito da Stripe secondo la propria informativa.</p>'+
