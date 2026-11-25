@@ -1275,7 +1275,7 @@ function initNewsletter(){
 function initNegozio(){
  var sec=$("negozio");if(!sec)return;
  /* Negozio online nascosto finché i pagamenti veri non sono attivi: mettere true per mostrarlo. */
- var NEGOZIO_VISIBILE=false;
+ var NEGOZIO_VISIBILE=true;
  if(!NEGOZIO_VISIBILE){sec.remove();["ngz-fab","ngz-dr","ngz-dim","ngz-dlg"].forEach(function(i){var e=$(i);if(e)e.remove()});
   var l=document.querySelector('.sl[data-pg="negozio"]');if(l)l.remove();if(location.hash==="#negozio")location.hash="home";return}
  var API="/api/negozio";
