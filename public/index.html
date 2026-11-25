@@ -1304,7 +1304,7 @@ function initNegozio(){
   grid.innerHTML=P.map(function(p){var out=!p.disponibili;
    return '<div class="card">'+(p.immagine?'<div class="pimg ph"><img src="'+esc(p.immagine)+'" alt="'+esc(p.nome)+'" loading="lazy"></div>':'<div class="pimg">🛒</div>')+
     '<h3>'+esc(p.nome)+'</h3><p class="ngz-d">'+esc(p.descrizione)+'</p>'+
-    (out?'<span class="ngz-b out">Esaurito</span>':p.disponibili<=2?'<span class="ngz-b lo">Ultimi '+p.disponibili+' pezzi</span>':'')+
+    (out?'<span class="ngz-b out">Esaurito</span>':p.disponibili<=2?'<span class="ngz-b lo">'+(p.disponibili===1?'Ultimo pezzo':'Ultimi '+p.disponibili+' pezzi')+'</span>':'')+
     '<div class="price">'+eur(p.prezzo)+'</div><p class="ngz-sp">'+(p.spedizione==null?'Solo ritiro in negozio':p.spedizione===0?'Spedizione gratuita in Italia · o ritiro in negozio':'Spedizione '+eur(p.spedizione)+' · ritiro gratis')+'</p>'+
     '<button class="btn" type="button" data-ngz-add="'+esc(p.id)+'"'+(out?' disabled':'')+'>'+(out?'Esaurito':'Aggiungi al carrello')+'</button></div>'}).join("");
   aggiorna()}
