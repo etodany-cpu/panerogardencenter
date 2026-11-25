@@ -147,6 +147,7 @@ async function checkout(request, env) {
     params[`line_items[${i}][price]`] = r.p.priceId;
     params[`line_items[${i}][quantity]`] = String(r.q);
   });
+  params["custom_text[submit][message]"] = "Tutti i prezzi sono IVA inclusa.";
   if (consegna === "spedizione") {
     params["shipping_address_collection[allowed_countries][0]"] = "IT";
     params["shipping_options[0][shipping_rate_data][display_name]"] = righe[0].p.spedizione === 0

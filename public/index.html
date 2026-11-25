@@ -696,6 +696,7 @@ header .hcall{position:relative;z-index:4}
 #ngz-grid .card>.pimg.ph img{display:block;width:100%;height:100%;object-fit:contain}
 #ngz-grid .card>p.ngz-d{flex:1}
 .ngz-sp{font-size:.88rem;color:var(--muted);margin:-4px 0 12px}
+.iva{font-size:.72em;font-weight:600;color:var(--muted);margin-left:6px;white-space:nowrap}
 .ngz-b{display:inline-block;align-self:flex-start;font-size:.78rem;font-weight:700;padding:3px 10px;border-radius:999px;margin-top:8px}
 .ngz-b.lo{background:#fff0dc;color:#9a5600}
 .ngz-b.out{background:#fde7e5;color:#b3261e}
@@ -975,6 +976,7 @@ header .hcall{position:relative;z-index:4}
 (function(){
 var $=function(i){return document.getElementById(i)};
 var CFG=JSON.parse($("cfg").textContent);
+var ivaTag=function(t){return /\d/.test(String(t||""))&&!/iva/i.test(String(t))?'<small class="iva">IVA inclusa</small>':""};
 var esc=function(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})};
 var br=function(s){return esc(s).replace(/\n/g,"<br>")};
 var fill=function(id,a,fn){$(id).innerHTML=a.map(fn).join("")};
@@ -984,7 +986,7 @@ function passa(x,f){return f==="all"||(f.indexOf("b:")===0?f.slice(2).split(",")
 function show(f){CUR=f;var ws=norm(Q).split(/\s+/).filter(Boolean);var L=CFG.prodotti.filter(function(x){return passa(x,f)}).filter(function(x){if(!ws.length)return true;var t=norm([x.n,x.d,x.m].join(" ")),t2=t.replace(/[\s.\-]/g,"");return ws.every(function(w){return t.indexOf(w)>=0||t2.indexOf(w.replace(/[.\-]/g,""))>=0})});
  var qi=$("qinfo");if(qi&&!ws.length&&FL){qi.hidden=false;qi.innerHTML=esc(FL)+": "+(L.length===1?"1 prodotto":L.length+" prodotti")+' · <a href="#catalogo" id="qall">mostra tutto il catalogo</a>'}else if(qi){qi.hidden=!ws.length;qi.textContent=L.length?(L.length===1?"1 prodotto trovato":L.length+" prodotti trovati")+" per «"+Q.trim()+"»":"Nessun prodotto trovato per «"+Q.trim()+"». Prova con un’altra parola o scrivici: ti aiutiamo noi."}
  $("prodotti").innerHTML=L.map(function(x){
- return '<div class="card">'+(x.f||String(x.i)==="1"?'<div class="pimg ph"><img src="'+(x.f||CFG.foto)+'" alt="'+esc(x.n)+'"></div>':'<div class="pimg">'+(x.i&&String(x.i)!=="1"?esc(x.i):"🤖")+'</div>')+'<h3>'+esc(x.n)+'</h3><p>'+esc(x.d)+'</p><p><b>'+esc(x.m)+'</b></p><div class="price">'+esc(x.p)+'</div><div class="cbtn"><button class="btn" type="button" data-m="'+esc(x.n)+'">Chiedi informazioni</button>'+(String(x.t||"").trim()?'<button class="btn o" type="button" data-sk="'+CFG.prodotti.indexOf(x)+'">Scheda prodotto</button>':'')+'</div></div>'}).join("")}
+ return '<div class="card">'+(x.f||String(x.i)==="1"?'<div class="pimg ph"><img src="'+(x.f||CFG.foto)+'" alt="'+esc(x.n)+'"></div>':'<div class="pimg">'+(x.i&&String(x.i)!=="1"?esc(x.i):"🤖")+'</div>')+'<h3>'+esc(x.n)+'</h3><p>'+esc(x.d)+'</p><p><b>'+esc(x.m)+'</b></p><div class="price">'+esc(x.p)+ivaTag(x.p)+'</div><div class="cbtn"><button class="btn" type="button" data-m="'+esc(x.n)+'">Chiedi informazioni</button>'+(String(x.t||"").trim()?'<button class="btn o" type="button" data-sk="'+CFG.prodotti.indexOf(x)+'">Scheda prodotto</button>':'')+'</div></div>'}).join("")}
 function render(){
  document.documentElement.style.setProperty("--base",CFG.colore||"#2e7d32");
  if(!/Ciri/.test(document.title))document.title=CFG.ditta+" – "+CFG.footer;
@@ -1183,7 +1185,7 @@ function initSchede(){
  document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!dlg.hidden)chiudi()});
  $("sk-a").onclick=function(){if(!cur)return;chiudi();var r=$("r");if(r)r.value="Acquisto di un robot rasaerba";var mm=$("m");if(mm)mm.value="Vorrei informazioni sul modello "+cur.n+".";vai("contatti")};
  document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("[data-sk]");if(!b)return;var x=CFG.prodotti[+b.getAttribute("data-sk")];if(!x)return;
-  cur=x;last=b;$("sk-t").textContent=x.n;$("sk-d").textContent=x.d||"";$("sk-p").textContent=x.p||"";
+  cur=x;last=b;$("sk-t").textContent=x.n;$("sk-d").textContent=x.d||"";$("sk-p").innerHTML=esc(x.p||"")+ivaTag(x.p);
   var src=x.f||(String(x.i)==="1"?CFG.foto:"");$("sk-i").innerHTML=src?'<img src="'+src+'" alt="'+esc(x.n)+'">':'<span aria-hidden="true">'+esc(x.i&&String(x.i)!=="1"?x.i:"🤖")+'</span>';
   $("sk-r").innerHTML=String(x.t||"").split(/\n+/).map(function(r){r=r.trim();if(!r)return"";var k=r.indexOf(":");
    return k>0?'<tr><th scope="row">'+esc(r.slice(0,k).trim())+'</th><td>'+esc(r.slice(k+1).trim())+'</td></tr>':'<tr><td colspan="2">'+esc(r)+'</td></tr>'}).join("");
@@ -1321,7 +1323,7 @@ function initNegozio(){
   try{if(sessionStorage.getItem("pg_pop_occasioni"))return;sessionStorage.setItem("pg_pop_occasioni","1")}catch(e){}
   if(location.hash==="#negozio"||qs.get("ordine"))return;
   var d=P.filter(function(p){return p.disponibili>0});if(!d.length)return;
-  $("ngz-pl").innerHTML=d.slice(0,3).map(function(p){return '<a class="pi" href="#negozio" data-ngz="vaipop">'+(p.immagine?'<img src="'+esc(p.immagine)+'" alt="">':'<span class="ic">🛒</span>')+'<span><b>'+esc(p.nome)+'</b><span class="pr">'+eur(p.prezzo)+'</span><small>'+(p.spedizione===0?'Spedizione gratuita (isole escluse)':p.spedizione==null?'Ritiro in negozio':'Spedizione '+eur(p.spedizione))+(p.disponibili===1?' · ultimo pezzo':'')+'</small></span></a>'}).join("")+(d.length>3?'<p class="sub" style="margin:0;text-align:center;font-size:.9rem">…e altri '+(d.length-3)+' articoli</p>':'');
+  $("ngz-pl").innerHTML=d.slice(0,3).map(function(p){return '<a class="pi" href="#negozio" data-ngz="vaipop">'+(p.immagine?'<img src="'+esc(p.immagine)+'" alt="">':'<span class="ic">🛒</span>')+'<span><b>'+esc(p.nome)+'</b><span class="pr">'+eur(p.prezzo)+'<small class="iva">IVA inclusa</small></span><small>'+(p.spedizione===0?'Spedizione gratuita (isole escluse)':p.spedizione==null?'Ritiro in negozio':'Spedizione '+eur(p.spedizione))+(p.disponibili===1?' · ultimo pezzo':'')+'</small></span></a>'}).join("")+(d.length>3?'<p class="sub" style="margin:0;text-align:center;font-size:.9rem">…e altri '+(d.length-3)+' articoli</p>':'');
   function chiudiPop(){pop.hidden=true;document.body.classList.remove("lb-on");document.removeEventListener("keydown",esc1)}
   function esc1(e){if(e.key==="Escape")chiudiPop()}
   pop.onclick=function(e){var t=e.target.closest("[data-ngz]");if(e.target===pop||(t&&t.getAttribute("data-ngz")==="chiudipop"))chiudiPop();else if(t&&t.getAttribute("data-ngz")==="vaipop"){chiudiPop()}};
@@ -1339,7 +1341,7 @@ function initNegozio(){
    return '<div class="card">'+(p.immagine?'<div class="pimg ph"><img src="'+esc(p.immagine)+'" alt="'+esc(p.nome)+'" loading="lazy"></div>':'<div class="pimg">🛒</div>')+
     '<h3>'+esc(p.nome)+'</h3><p class="ngz-d">'+esc(p.descrizione)+'</p>'+
     (out?'<span class="ngz-b out">Esaurito</span>':p.disponibili<=2?'<span class="ngz-b lo">'+(p.disponibili===1?'Ultimo pezzo':'Ultimi '+p.disponibili+' pezzi')+'</span>':'')+
-    '<div class="price">'+eur(p.prezzo)+'</div><p class="ngz-sp">'+(p.spedizione==null?'Solo ritiro in negozio':p.spedizione===0?'Spedizione gratuita in Italia (isole escluse) · o ritiro in negozio':'Spedizione '+eur(p.spedizione)+' (isole escluse) · ritiro gratis')+'</p>'+
+    '<div class="price">'+eur(p.prezzo)+'<small class="iva">IVA inclusa</small></div><p class="ngz-sp">'+(p.spedizione==null?'Solo ritiro in negozio':p.spedizione===0?'Spedizione gratuita in Italia (isole escluse) · o ritiro in negozio':'Spedizione '+eur(p.spedizione)+' (isole escluse) · ritiro gratis')+'</p>'+
     '<button class="btn" type="button" data-ngz-add="'+esc(p.id)+'"'+(out?' disabled':'')+'>'+(out?'Esaurito':'Aggiungi al carrello')+'</button></div>'}).join("");
   aggiorna()}
 
@@ -1349,11 +1351,11 @@ function initNegozio(){
   var sub=0,solo=false;ids.forEach(function(id){var p=byId(id);sub+=p.prezzo*C[id];if(p.spedizione==null)solo=true});
   if(solo&&CONS!=="ritiro")CONS="ritiro";
   var isole=CONS==="isole",prev=(CONS==="spedizione"&&n>1)||isole,sp=CONS==="ritiro"?0:(!isole&&n===1?byId(ids[0]).spedizione:null);
-  var h=ids.map(function(id){var p=byId(id);return '<div class="ngz-r"><div class="nm">'+esc(p.nome)+'<small>'+eur(p.prezzo)+' cad.</small></div><div class="ngz-q"><button type="button" data-ngz-q="-1" data-id="'+esc(id)+'" aria-label="Uno in meno">−</button><b>'+C[id]+'</b><button type="button" data-ngz-q="1" data-id="'+esc(id)+'" aria-label="Uno in più">+</button></div><button class="ngz-del" type="button" data-ngz-del="'+esc(id)+'">Togli</button></div>'}).join("");
+  var h=ids.map(function(id){var p=byId(id);return '<div class="ngz-r"><div class="nm">'+esc(p.nome)+'<small>'+eur(p.prezzo)+' cad. IVA inclusa</small></div><div class="ngz-q"><button type="button" data-ngz-q="-1" data-id="'+esc(id)+'" aria-label="Uno in meno">−</button><b>'+C[id]+'</b><button type="button" data-ngz-q="1" data-id="'+esc(id)+'" aria-label="Uno in più">+</button></div><button class="ngz-del" type="button" data-ngz-del="'+esc(id)+'">Togli</button></div>'}).join("");
   h+='<fieldset><legend>Consegna</legend><label class="ngz-o"><input type="radio" name="ngz-c" value="ritiro"'+(CONS==="ritiro"?" checked":"")+'><span><b>Ritiro in negozio – gratis</b><small>'+esc(CFG.indirizzo||"")+'. Ti avvisiamo quando è pronto.</small></span></label>'+
    '<label class="ngz-o"><input type="radio" name="ngz-c" value="spedizione"'+(CONS==="spedizione"?" checked":"")+(solo?" disabled":"")+'><span><b>Spedizione in Italia (isole escluse)</b><small>'+(solo?"Non disponibile: nel carrello c’è un articolo solo da ritirare.":n===1?(byId(ids[0]).spedizione===0?"Gratuita":"Costo: "+eur(byId(ids[0]).spedizione)):"Con più articoli calcoliamo noi il costo e ti rispondiamo.")+'</small></span></label>'+
    '<label class="ngz-o"><input type="radio" name="ngz-c" value="isole"'+(isole?" checked":"")+(solo?" disabled":"")+'><span><b>Spedizione nelle isole</b><small>Sicilia, Sardegna e isole minori: il costo lo calcoliamo noi e ti rispondiamo.</small></span></label></fieldset>';
-  h+='<div class="ngz-tot"><div><span>Articoli</span><span>'+eur(sub)+'</span></div><div><span>'+(CONS==="ritiro"?"Ritiro in negozio":"Spedizione")+'</span><span>'+(sp==null?"da calcolare":sp===0?"gratis":eur(sp))+'</span></div><div class="t"><span>Totale</span><span>'+(sp==null?eur(sub)+" + sped.":eur(sub+sp))+'</span></div></div>';
+  h+='<div class="ngz-tot"><div><span>Articoli</span><span>'+eur(sub)+'</span></div><div><span>'+(CONS==="ritiro"?"Ritiro in negozio":"Spedizione")+'</span><span>'+(sp==null?"da calcolare":sp===0?"gratis":eur(sp))+'</span></div><div class="t"><span>Totale <small class="iva">IVA inclusa</small></span><span>'+(sp==null?eur(sub)+" + sped.":eur(sub+sp))+'</span></div></div>';
   if(prev)h+='<div class="ngz-m">'+(isole?'Per le isole':'Hai scelto più articoli da spedire:')+' <b>calcoliamo noi il costo esatto</b> della spedizione e ti mandiamo per email il link per pagare.</div>'+
    '<form class="ngz-pf" id="ngz-pf"><label for="ngz-fn">Nome e cognome</label><input id="ngz-fn" name="Nome" required autocomplete="name"><div class="ngz-2"><div><label for="ngz-fe">Email</label><input id="ngz-fe" name="email" type="email" required autocomplete="email"></div><div><label for="ngz-ft">Telefono</label><input id="ngz-ft" name="Telefono" required autocomplete="tel"></div></div>'+
    '<label for="ngz-fa">Indirizzo</label><input id="ngz-fa" name="Indirizzo" required autocomplete="street-address"><div class="ngz-2"><div><label for="ngz-fc">CAP</label><input id="ngz-fc" name="CAP" required pattern="[0-9]{5}" inputmode="numeric" autocomplete="postal-code"></div><div><label for="ngz-fz">Città e provincia</label><input id="ngz-fz" name="Citta" required autocomplete="address-level2"></div></div>'+
