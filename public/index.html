@@ -735,6 +735,26 @@ header .hcall{position:relative;z-index:4}
 .ngz-cond button{border:0;background:none;padding:0;color:var(--accent);font:inherit;font-weight:600;text-decoration:underline;cursor:pointer}
 .ngz-dlg{position:fixed;inset:0;z-index:56;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(4,12,7,.72)}
 .ngz-dlg[hidden]{display:none}
+.ngz-pop{position:fixed;inset:0;z-index:57;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(4,12,7,.66);animation:ngzF .3s ease}
+.ngz-pop[hidden]{display:none}
+.ngz-pop>div{position:relative;width:min(520px,100%);max-height:100%;overflow:auto;border-radius:24px;background:var(--card);color:var(--fg);box-shadow:0 30px 60px -20px rgba(0,0,0,.6);animation:ngzS .35s cubic-bezier(.2,.9,.3,1.2)}
+.ngz-pop .ph{background:linear-gradient(135deg,var(--forest),color-mix(in srgb,var(--base) 70%,#04110a));color:#fff;padding:26px 26px 22px;text-align:center}
+.ngz-pop .ph .tg{display:inline-block;background:var(--fresh);color:var(--forest);font-weight:800;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;padding:5px 12px;border-radius:999px;margin-bottom:10px}
+.ngz-pop h3{margin:0 0 6px;font-family:var(--fd);font-size:1.6rem;line-height:1.15}
+.ngz-pop .ph p{margin:0;opacity:.88;font-size:.98rem}
+.ngz-pop .pl{display:grid;gap:10px;padding:18px 22px 4px}
+.ngz-pop .pi{display:flex;align-items:center;gap:14px;padding:10px;border:1px solid var(--border);border-radius:16px;text-decoration:none;color:inherit;transition:border-color .15s,transform .15s}
+.ngz-pop .pi:hover{border-color:var(--base);transform:translateY(-1px)}
+.ngz-pop .pi img,.ngz-pop .pi .ic{flex:none;width:76px;height:76px;border-radius:12px;background:#fff;object-fit:contain;display:flex;align-items:center;justify-content:center;font-size:30px}
+.ngz-pop .pi b{display:block;font-size:.98rem;line-height:1.25}
+.ngz-pop .pi .pr{display:block;margin-top:3px;color:var(--base);font-weight:800;font-size:1.15rem}
+.ngz-pop .pi small{display:block;color:var(--muted);font-size:.8rem}
+.ngz-pop .pa{padding:16px 22px 22px;text-align:center}
+.ngz-pop .pa .btn{display:block;width:100%;text-align:center;font-size:1.05rem;padding:13px 22px}
+.ngz-pop .pa button.lk{margin-top:10px;background:none;border:0;color:var(--muted);font-size:.9rem;cursor:pointer;text-decoration:underline}
+@keyframes ngzF{from{opacity:0}to{opacity:1}}
+@keyframes ngzS{from{opacity:0;transform:translateY(24px) scale(.96)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.ngz-pop,.ngz-pop>div{animation:none}}
 .ngz-dlg>div{position:relative;width:min(760px,100%);max-height:100%;overflow:auto;border-radius:24px;background:var(--card);color:var(--fg);padding:28px 26px}
 .ngz-dlg h3{margin:0 40px 10px 0;font-family:var(--fd)}
 .ngz-dlg h4{margin:18px 0 4px;font-family:var(--fd)}
@@ -941,6 +961,7 @@ header .hcall{position:relative;z-index:4}
 <button class="btn ngz-fab" id="ngz-fab" type="button" data-ngz="apri" hidden>🛒 Carrello <i id="ngz-n">0</i></button>
 <div class="ngz-dim" id="ngz-dim" data-ngz="chiudi" hidden></div>
 <aside class="ngz-dr" id="ngz-dr" role="dialog" aria-modal="true" aria-labelledby="ngz-dt" hidden><div class="ngz-dh"><h3 id="ngz-dt">Il tuo carrello</h3><button class="ngz-x" type="button" data-ngz="chiudi" aria-label="Chiudi il carrello">×</button></div><div class="ngz-body" id="ngz-body"></div><div class="ngz-foot" id="ngz-foot"></div></aside>
+<div class="ngz-pop" id="ngz-pop" role="dialog" aria-modal="true" aria-labelledby="ngz-pt" hidden><div><button class="skx" type="button" data-ngz="chiudipop" aria-label="Chiudi">×</button><div class="ph"><span class="tg">Offerte online</span><h3 id="ngz-pt">L’angolo delle occasioni</h3><p>Articoli a prezzo promo che puoi comprare subito qui sul sito: ritiro gratis in negozio o consegna a casa.</p></div><div class="pl" id="ngz-pl"></div><div class="pa"><a class="btn" href="#negozio" data-ngz="vaipop">Vai alle occasioni →</a><button class="lk" type="button" data-ngz="chiudipop">No grazie, continua a navigare</button></div></div></div>
 <div class="ngz-dlg" id="ngz-dlg" role="dialog" aria-modal="true" aria-labelledby="ngz-ct" hidden><div><button class="skx" type="button" data-ngz="chiudicond" aria-label="Chiudi">×</button><h3 id="ngz-ct">Condizioni di vendita</h3><div id="ngz-ctx"></div></div></div>
 <section id="contatti"><div class="wrap contact"><div><h2>{{tContatti}}</h2><p class="sub">{{sContatti}}</p>
 <div class="info"><p><b>Telefono</b>{{telefono}}</p><p><b>Email</b>{{email}}</p><p><b>Indirizzo</b>{{indirizzo}}</p><p><b>Orari</b>{{orari}}</p></div>
@@ -1294,9 +1315,21 @@ function initNegozio(){
  if(qs.get("ordine")==="ok"){C={};salva();nota("<b>Grazie per il tuo ordine!</b> Il pagamento è andato a buon fine e riceverai la ricevuta via email. Se hai scelto il ritiro ti avvisiamo noi quando è pronto; se hai scelto la spedizione ti mandiamo il tracciamento.",true);
   try{history.replaceState(null,"",location.pathname+"#negozio")}catch(e){}}
 
+ /* pop-up di benvenuto: una volta per visita, solo se ci sono articoli disponibili */
+ function popup(){
+  var pop=$("ngz-pop");if(!pop||prova)return;
+  try{if(sessionStorage.getItem("pg_pop_occasioni"))return;sessionStorage.setItem("pg_pop_occasioni","1")}catch(e){}
+  if(location.hash==="#negozio"||qs.get("ordine"))return;
+  var d=P.filter(function(p){return p.disponibili>0});if(!d.length)return;
+  $("ngz-pl").innerHTML=d.slice(0,3).map(function(p){return '<a class="pi" href="#negozio" data-ngz="vaipop">'+(p.immagine?'<img src="'+esc(p.immagine)+'" alt="">':'<span class="ic">🛒</span>')+'<span><b>'+esc(p.nome)+'</b><span class="pr">'+eur(p.prezzo)+'</span><small>'+(p.spedizione===0?'Spedizione gratuita (isole escluse)':p.spedizione==null?'Ritiro in negozio':'Spedizione '+eur(p.spedizione))+(p.disponibili===1?' · ultimo pezzo':'')+'</small></span></a>'}).join("")+(d.length>3?'<p class="sub" style="margin:0;text-align:center;font-size:.9rem">…e altri '+(d.length-3)+' articoli</p>':'');
+  function chiudiPop(){pop.hidden=true;document.body.classList.remove("lb-on");document.removeEventListener("keydown",esc1)}
+  function esc1(e){if(e.key==="Escape")chiudiPop()}
+  pop.onclick=function(e){var t=e.target.closest("[data-ngz]");if(e.target===pop||(t&&t.getAttribute("data-ngz")==="chiudipop"))chiudiPop();else if(t&&t.getAttribute("data-ngz")==="vaipop"){chiudiPop()}};
+  setTimeout(function(){if(!dr.hidden)return;pop.hidden=false;document.body.classList.add("lb-on");document.addEventListener("keydown",esc1);var x=pop.querySelector(".pa .btn");if(x)x.focus({preventScroll:true})},1500)}
+
  function carica(){
   if(prova){P=[];return Promise.resolve(disegna())}
-  return fetch(API+"/prodotti").then(function(r){if(!r.ok)throw new Error(r.status);return r.json()}).then(function(d){P=d.prodotti||[];disegna()})
+  return fetch(API+"/prodotti").then(function(r){if(!r.ok)throw new Error(r.status);return r.json()}).then(function(d){P=d.prodotti||[];disegna();popup()})
    .catch(function(){P=[];grid.innerHTML='<p class="sub">Il negozio online sarà disponibile a breve. Nel frattempo puoi chiamarci al '+esc(CFG.telefono||"")+' o venirci a trovare.</p>';aggiorna()})}
 
  function disegna(){
