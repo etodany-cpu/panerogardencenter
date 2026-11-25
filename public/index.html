@@ -700,6 +700,12 @@ header .hcall{position:relative;z-index:4}
 .ngz-b{display:inline-block;align-self:flex-start;font-size:.78rem;font-weight:700;padding:3px 10px;border-radius:999px;margin-top:8px}
 .ngz-b.lo{background:#fff0dc;color:#9a5600}
 .ngz-b.out{background:#fde7e5;color:#b3261e}
+.ngz-b.ris{background:#e8eefc;color:#2a4a9a}
+.ngz-timer{display:flex;align-items:center;gap:8px;border-radius:12px;padding:9px 12px;margin:0 0 12px;font-size:.92rem;background:color-mix(in srgb,var(--base) 12%,var(--card))}
+.ngz-timer b{font-variant-numeric:tabular-nums;font-size:1.05rem}
+.ngz-timer.urg{background:#fff0dc;color:#7a4300}
+.ngz-fab small{font-variant-numeric:tabular-nums;font-weight:700;opacity:.9}
+.ngz-fab small:empty{display:none}
 #ngz-grid .btn[disabled]{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
 .ngz-fab{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:22;display:inline-flex;align-items:center;gap:8px;box-shadow:0 10px 26px -8px rgba(0,0,0,.45)}
 .ngz-fab[hidden]{display:none}
@@ -960,7 +966,7 @@ header .hcall{position:relative;z-index:4}
 <div class="ngz-pts"><span>🔒 Pagamento sicuro con carta</span><span>🏬 Ritiro gratuito a Ciriè</span><span>🚚 Spedizione in Italia (isole escluse)</span></div>
 <p class="ngz-note" id="ngz-msg" hidden></p><div class="grid" id="ngz-grid"><p class="sub">Caricamento articoli…</p></div>
 <p class="ngz-cond">Prima di acquistare leggi le <button type="button" data-ngz="cond">condizioni di vendita, recesso e garanzia</button>.</p></div></section>
-<button class="btn ngz-fab" id="ngz-fab" type="button" data-ngz="apri" hidden>🛒 Carrello <i id="ngz-n">0</i></button>
+<button class="btn ngz-fab" id="ngz-fab" type="button" data-ngz="apri" hidden>🛒 Carrello <i id="ngz-n">0</i><small id="ngz-tf"></small></button>
 <div class="ngz-dim" id="ngz-dim" data-ngz="chiudi" hidden></div>
 <aside class="ngz-dr" id="ngz-dr" role="dialog" aria-modal="true" aria-labelledby="ngz-dt" hidden><div class="ngz-dh"><h3 id="ngz-dt">Il tuo carrello</h3><button class="ngz-x" type="button" data-ngz="chiudi" aria-label="Chiudi il carrello">×</button></div><div class="ngz-body" id="ngz-body"></div><div class="ngz-foot" id="ngz-foot"></div></aside>
 <div class="ngz-pop" id="ngz-pop" role="dialog" aria-modal="true" aria-labelledby="ngz-pt" hidden><div><button class="skx" type="button" data-ngz="chiudipop" aria-label="Chiudi">×</button><div class="ph"><span class="tg">Offerte online</span><h3 id="ngz-pt">L’angolo delle occasioni</h3><p>Articoli a prezzo promo che puoi comprare subito qui sul sito: ritiro gratis in negozio o consegna a casa.</p></div><div class="pl" id="ngz-pl"></div><div class="pa"><a class="btn" href="#negozio" data-ngz="vaipop">Vai alle occasioni →</a><button class="lk" type="button" data-ngz="chiudipop">No grazie, continua a navigare</button></div></div></div>
@@ -1306,6 +1312,10 @@ function initNegozio(){
  var API="/api/negozio";
  var prova=/claude|claudeusercontent/.test(location.hostname)||!/^https?:$/.test(location.protocol);
  var KEY="pg_carrello",P=[],C={},CONS="ritiro",busy=false;
+ /* prenotazione: per 10 minuti gli articoli nel carrello sono riservati a questo cliente (lo gestisce il server) */
+ var SCADE=0,PAGAM=false;
+ var CLI=(function(){var c="";try{c=localStorage.getItem("pg_cliente")||""}catch(e){}
+  if(!/^[A-Za-z0-9-]{8,64}$/.test(c)){c=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():("c"+Date.now().toString(36)+Math.random().toString(36).slice(2,12));try{localStorage.setItem("pg_cliente",c)}catch(e){}}return c})();
  try{C=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){C={}}
  function salva(){try{localStorage.setItem(KEY,JSON.stringify(C))}catch(e){}}
  function eur(c){return (c/100).toLocaleString("it-IT",{style:"currency",currency:"EUR"})}
@@ -1314,8 +1324,9 @@ function initNegozio(){
  function nota(t,ok){msg.innerHTML=t;msg.className="ngz-note"+(ok?" ok":"");msg.hidden=!t}
 
  /* ritorno da Stripe dopo il pagamento */
- var qs=new URLSearchParams(location.search);
- if(qs.get("ordine")==="ok"){C={};salva();nota("<b>Grazie per il tuo ordine!</b> Il pagamento è andato a buon fine e riceverai la ricevuta via email. Se hai scelto il ritiro ti avvisiamo noi quando è pronto; se hai scelto la spedizione ti mandiamo il tracciamento.",true);
+ var qs=new URLSearchParams(location.search),ORDINE_OK=qs.get("ordine")==="ok",ANNULLATO=qs.get("annullato")==="1";
+ if(ANNULLATO){try{history.replaceState(null,"",location.pathname+"#negozio")}catch(e){}}
+ if(ORDINE_OK){C={};salva();nota("<b>Grazie per il tuo ordine!</b> Il pagamento è andato a buon fine e riceverai la ricevuta via email. Se hai scelto il ritiro ti avvisiamo noi quando è pronto; se hai scelto la spedizione ti mandiamo il tracciamento.",true);
   try{history.replaceState(null,"",location.pathname+"#negozio")}catch(e){}}
 
  /* pop-up di benvenuto: una volta per visita, solo se ci sono articoli disponibili */
@@ -1330,20 +1341,37 @@ function initNegozio(){
   pop.onclick=function(e){var t=e.target.closest("[data-ngz]");if(e.target===pop||(t&&t.getAttribute("data-ngz")==="chiudipop"))chiudiPop();else if(t&&t.getAttribute("data-ngz")==="vaipop"){chiudiPop()}};
   setTimeout(function(){if(!dr.hidden)return;pop.hidden=false;document.body.classList.add("lb-on");document.addEventListener("keydown",esc1);var x=pop.querySelector(".pa .btn");if(x)x.focus({preventScroll:true})},1500)}
 
- function carica(){
+ function applica(d){
+  P=d.prodotti||[];var m=d.mia;
+  if(m&&m.articoli&&!ORDINE_OK){C=m.articoli;SCADE=Date.now()+(m.scade-d.adesso);PAGAM=!!m.pagamento}else{C={};SCADE=0;PAGAM=false}
+  salva()}
+ function mmss(ms){var t=Math.max(0,Math.ceil(ms/1000));return Math.floor(t/60)+":"+("0"+t%60).slice(-2)}
+ var SCADUTO_MSG='<div class="ngz-m err"><b>Tempo scaduto.</b> Gli articoli erano riservati per te per 10 minuti: ora sono tornati disponibili per tutti. Se sono ancora liberi puoi rimetterli nel carrello.</div>';
+ function tick(){
+  var n=Object.keys(C).length,tf=$("ngz-tf"),tm=$("ngz-tm");
+  if(!n||!SCADE){if(tf)tf.textContent="";return}
+  var rem=SCADE-Date.now();
+  if(rem<=-1500){if(busy)return;SCADE=0;C={};salva();if(tf)tf.textContent="";
+   (prova?Promise.resolve(disegna()):carica(true)).then(function(){aggiorna(SCADUTO_MSG);nota('<b>Tempo scaduto:</b> gli articoli del carrello sono tornati disponibili per tutti.')});return}
+  if(tf)tf.textContent="⏱ "+mmss(rem);
+  if(tm){tm.textContent=mmss(rem);tm.parentNode.classList.toggle("urg",rem<60000)}}
+ setInterval(tick,1000);
+ function carica(muto){
   if(prova){P=[];return Promise.resolve(disegna())}
-  return fetch(API+"/prodotti").then(function(r){if(!r.ok)throw new Error(r.status);return r.json()}).then(function(d){P=d.prodotti||[];disegna();popup()})
+  var aveva=Object.keys(C).length;
+  return fetch(API+"/prodotti?cliente="+encodeURIComponent(CLI),{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})
+   .then(function(d){applica(d);disegna();if(!muto){popup();if(aveva&&!Object.keys(C).length&&!ORDINE_OK)nota('<b>Tempo scaduto:</b> gli articoli che avevi nel carrello erano riservati per 10 minuti e sono tornati disponibili per tutti.')}})
    .catch(function(){P=[];grid.innerHTML='<p class="sub">Il negozio online sarà disponibile a breve. Nel frattempo puoi chiamarci al '+esc(CFG.telefono||"")+' o venirci a trovare.</p>';aggiorna()})}
 
  function disegna(){
-  for(var k in C){var p=byId(k);if(!p||!p.disponibili)delete C[k];else if(C[k]>p.disponibili)C[k]=p.disponibili}salva();
+  if(prova){for(var k in C){var p=byId(k);if(!p||!p.disponibili)delete C[k];else if(C[k]>p.disponibili)C[k]=p.disponibili}salva()}
   if(!P.length){grid.innerHTML='<p class="sub">Al momento non ci sono articoli in vendita online. Chiamaci al '+esc(CFG.telefono||"")+': ti aiutiamo noi.</p>';aggiorna();return}
-  grid.innerHTML=P.map(function(p){var out=!p.disponibili;
+  grid.innerHTML=P.map(function(p){var out=!p.disponibili,ris=out&&p.riservati>0,pieno=!out&&(C[p.id]||0)>=p.disponibili;
    return '<div class="card">'+(p.immagine?'<div class="pimg ph"><img src="'+esc(p.immagine)+'" alt="'+esc(p.nome)+'" loading="lazy"></div>':'<div class="pimg">🛒</div>')+
     '<h3>'+esc(p.nome)+'</h3><p class="ngz-d">'+esc(p.descrizione)+'</p>'+
-    (out?'<span class="ngz-b out">Esaurito</span>':p.disponibili<=2?'<span class="ngz-b lo">'+(p.disponibili===1?'Ultimo pezzo':'Ultimi '+p.disponibili+' pezzi')+'</span>':'')+
+    (ris?'<span class="ngz-b ris">Nel carrello di un altro cliente</span>':out?'<span class="ngz-b out">Esaurito</span>':pieno?'<span class="ngz-b ris">Riservato per te</span>':p.disponibili<=2?'<span class="ngz-b lo">'+(p.disponibili===1?'Ultimo pezzo':'Ultimi '+p.disponibili+' pezzi')+'</span>':'')+
     '<div class="price">'+eur(p.prezzo)+'<small class="iva">IVA inclusa</small></div><p class="ngz-sp">'+(p.spedizione==null?'Solo ritiro in negozio':p.spedizione===0?'Spedizione gratuita in Italia (isole escluse) · o ritiro in negozio':'Spedizione '+eur(p.spedizione)+' (isole escluse) · ritiro gratis')+'</p>'+
-    '<button class="btn" type="button" data-ngz-add="'+esc(p.id)+'"'+(out?' disabled':'')+'>'+(out?'Esaurito':'Aggiungi al carrello')+'</button></div>'}).join("");
+    (pieno?'<button class="btn o" type="button" data-ngz="apri">Già nel carrello</button>':'<button class="btn" type="button" data-ngz-add="'+esc(p.id)+'"'+(out?' disabled':'')+'>'+(ris?'Riservato, riprova tra poco':out?'Esaurito':'Aggiungi al carrello')+'</button>')+'</div>'}).join("");
   aggiorna()}
 
  function aggiorna(m){
@@ -1361,20 +1389,32 @@ function initNegozio(){
    '<form class="ngz-pf" id="ngz-pf"><label for="ngz-fn">Nome e cognome</label><input id="ngz-fn" name="Nome" required autocomplete="name"><div class="ngz-2"><div><label for="ngz-fe">Email</label><input id="ngz-fe" name="email" type="email" required autocomplete="email"></div><div><label for="ngz-ft">Telefono</label><input id="ngz-ft" name="Telefono" required autocomplete="tel"></div></div>'+
    '<label for="ngz-fa">Indirizzo</label><input id="ngz-fa" name="Indirizzo" required autocomplete="street-address"><div class="ngz-2"><div><label for="ngz-fc">CAP</label><input id="ngz-fc" name="CAP" required pattern="[0-9]{5}" inputmode="numeric" autocomplete="postal-code"></div><div><label for="ngz-fz">Città e provincia</label><input id="ngz-fz" name="Citta" required autocomplete="address-level2"></div></div>'+
    '<label for="ngz-fx">Note <span style="font-weight:400;color:var(--muted)">(facoltative)</span></label><textarea id="ngz-fx" name="Note" style="min-height:60px"></textarea></form>';
-  body.innerHTML=h+(m||"");
+  var tmr=SCADE?'<div class="ngz-timer'+(SCADE-Date.now()<60000?' urg':'')+'">⏱ <span>'+(PAGAM?'Pagamento in corso: articoli riservati ancora ':'Articoli riservati per te ancora ')+'<b id="ngz-tm">'+mmss(SCADE-Date.now())+'</b></span></div>':'';
+  body.innerHTML=tmr+h+(m||"");
   foot.innerHTML=prev?'<button class="btn" type="button" data-ngz="prev">Richiedi il costo di spedizione</button>':'<button class="btn" type="button" data-ngz="paga">Paga con carta '+(sp!=null?eur(sub+sp):"")+'</button><small>🔒 Pagamento sicuro gestito da Stripe</small>'}
 
  function apri(){dr.hidden=false;dim.hidden=false;document.body.classList.add("lb-on");var x=dr.querySelector(".ngz-x");if(x)x.focus()}
  function chiudi(){dr.hidden=true;dim.hidden=true;document.body.classList.remove("lb-on")}
- function aggiungi(id){var p=byId(id);if(!p)return;var q=(C[id]||0)+1;if(q>p.disponibili){alert("Di questo articolo ne abbiamo solo "+p.disponibili+".");return}C[id]=q;salva();aggiorna();apri()}
- function cambia(id,d){var p=byId(id);if(!p)return;var q=(C[id]||0)+d;if(q<=0)delete C[id];else if(q>p.disponibili){alert("Di questo articolo ne abbiamo solo "+p.disponibili+".");return}else C[id]=q;salva();aggiorna()}
+ function riserva(nC,dopo){
+  if(busy)return;
+  if(prova){C=nC;SCADE=Object.keys(C).length?(SCADE||Date.now()+600000):0;salva();disegna();if(dopo)dopo(true,"");return}
+  busy=true;
+  fetch(API+"/riserva",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({cliente:CLI,articoli:Object.keys(nC).map(function(id){return {id:id,quantita:nC[id]}})})})
+   .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d}})})
+   .then(function(x){busy=false;if(x.d.prodotti){applica(x.d);disegna()}var e=x.ok?"":(x.d.errore||"Non è stato possibile aggiornare il carrello.");if(e)aggiorna('<div class="ngz-m err">'+esc(e)+'</div>');if(dopo)dopo(x.ok,e)})
+   .catch(function(){busy=false;var e="Problema di connessione. Riprova tra poco.";aggiorna('<div class="ngz-m err">'+e+'</div>');if(dopo)dopo(false,e)})}
+ function copia(){var n={};for(var k in C)n[k]=C[k];return n}
+ function aggiungi(id){var p=byId(id);if(!p)return;var q=(C[id]||0)+1;if(q>p.disponibili){alert("Di questo articolo ne abbiamo solo "+p.disponibili+".");return}
+  var n=copia();n[id]=q;riserva(n,function(ok,e){if(ok)apri();else alert(e)})}
+ function cambia(id,d){var p=byId(id);if(!p)return;var q=(C[id]||0)+d;if(q>p.disponibili){alert("Di questo articolo ne abbiamo solo "+p.disponibili+".");return}
+  var n=copia();if(q<=0)delete n[id];else n[id]=q;riserva(n)}
 
  function paga(b){if(busy)return;busy=true;b.disabled=true;b.textContent="Attendi…";
   if(prova){busy=false;aggiorna('<div class="ngz-m">Anteprima: sul sito pubblicato qui si apre la pagina di pagamento sicura di Stripe.</div>');return}
-  fetch(API+"/checkout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({consegna:CONS,articoli:Object.keys(C).map(function(id){return {id:id,quantita:C[id]}})})})
+  fetch(API+"/checkout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({cliente:CLI,consegna:CONS,articoli:Object.keys(C).map(function(id){return {id:id,quantita:C[id]}})})})
    .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d}})})
    .then(function(x){busy=false;if(x.ok&&x.d.url){location.href=x.d.url;return}
-    carica().then(function(){aggiorna('<div class="ngz-m err">'+esc(x.d.errore||"Non è stato possibile avviare il pagamento.")+'</div>')})})
+    carica(true).then(function(){aggiorna('<div class="ngz-m err">'+esc(x.d.errore||"Non è stato possibile avviare il pagamento.")+'</div>')})})
    .catch(function(){busy=false;aggiorna('<div class="ngz-m err">Problema di connessione. Riprova tra poco.</div>')})}
 
  function preventivo(b){var f=$("ngz-pf");if(!f||!f.reportValidity())return;
@@ -1384,7 +1424,7 @@ function initNegozio(){
   b.disabled=true;b.textContent="Invio…";
   var fd=new FormData(f);fd.append("access_key",key);fd.append("subject","Richiesta costo spedizione – L’angolo delle occasioni");fd.append("from_name",CFG.ditta||"Negozio online");fd.append("Articoli",el);fd.append("Consegna",CONS==="isole"?"Spedizione nelle isole":"Spedizione in Italia (più articoli)");
   fetch("https://api.web3forms.com/submit",{method:"POST",body:fd,headers:{Accept:"application/json"}}).then(function(r){return r.json()})
-   .then(function(d){if(String(d.success)!=="true")throw new Error();C={};salva();aggiorna('<div class="ngz-m"><b>Richiesta inviata!</b> Ti rispondiamo al più presto con il costo di spedizione e il link per pagare.</div>')})
+   .then(function(d){if(String(d.success)!=="true")throw new Error();riserva({});aggiorna('<div class="ngz-m"><b>Richiesta inviata!</b> Ti rispondiamo al più presto con il costo di spedizione e il link per pagare.</div>')})
    .catch(function(){b.disabled=false;b.textContent="Richiedi il costo di spedizione";alert("Invio non riuscito. Riprova o chiamaci al "+(CFG.telefono||"")+".")})}
 
  function condizioni(){var c=CFG,dati=esc(c.ditta||"")+" – "+esc(c.indirizzo||"")+(c.piva?" – P.IVA "+esc(c.piva):"")+" – Tel. "+esc(c.telefono||"")+" – Email "+esc(c.email||"");
@@ -1402,14 +1442,18 @@ function initNegozio(){
  document.addEventListener("click",function(e){var t=e.target.closest&&e.target.closest("[data-ngz],[data-ngz-add],[data-ngz-q],[data-ngz-del]");if(!t)return;
   if(t.hasAttribute("data-ngz-add"))return aggiungi(t.getAttribute("data-ngz-add"));
   if(t.hasAttribute("data-ngz-q"))return cambia(t.getAttribute("data-id"),+t.getAttribute("data-ngz-q"));
-  if(t.hasAttribute("data-ngz-del")){delete C[t.getAttribute("data-ngz-del")];salva();return aggiorna()}
+  if(t.hasAttribute("data-ngz-del")){var n=copia();delete n[t.getAttribute("data-ngz-del")];return riserva(n)}
   var a=t.getAttribute("data-ngz");
   if(a==="apri")apri();else if(a==="chiudi")chiudi();else if(a==="paga")paga(t);else if(a==="prev")preventivo(t);else if(a==="cond")condizioni();
   else if(a==="chiudicond"){dlg.hidden=true;document.body.classList.remove("lb-on")}});
  dlg.addEventListener("click",function(e){if(e.target===dlg){dlg.hidden=true;document.body.classList.remove("lb-on")}});
  document.addEventListener("change",function(e){if(e.target&&e.target.name==="ngz-c"){CONS=e.target.value;aggiorna()}});
  document.addEventListener("keydown",function(e){if(e.key!=="Escape")return;if(!dlg.hidden){dlg.hidden=true;document.body.classList.remove("lb-on")}else if(!dr.hidden)chiudi()});
- carica()}
+ if(ANNULLATO&&!prova){
+  fetch(API+"/annulla",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({cliente:CLI})}).then(function(r){return r.json()})
+   .then(function(d){if(d.prodotti){applica(d);disegna()}if(Object.keys(C).length){aggiorna('<div class="ngz-m">Pagamento annullato: gli articoli restano riservati per te per altri 10 minuti.</div>');apri()}})
+   .catch(function(){carica(true)})}
+ else carica()}
 function vai(h){if(location.hash==="#"+h)window.__route&&window.__route();else location.hash=h}
 function initPagine(){
  var MAP={hero:"home",meteo:"home",servizi:"home",perche:"home",recensioni:"home",newsletter:"home",riparazioni:"assistenza",marchi:"marchi",catalogo:"catalogo",negozio:"negozio",contatti:"contatti"},

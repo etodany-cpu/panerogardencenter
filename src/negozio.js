@@ -16,10 +16,17 @@ const STRIPE_API = "https://api.stripe.com/v1";
 const STRIPE_VERSION = "2024-06-20";
 const MAX_PEZZI = 10;
 const NEGOZIO_INDIRIZZO = "Via San Maurizio 157, Ciriè (TO)";
+// Prenotazione degli articoli messi nel carrello (tabella "prenotazioni" nel database D1 STATS):
+// per 10 minuti il pezzo è riservato a quel cliente e gli altri lo vedono non disponibile.
+// Quando il cliente passa al pagamento la prenotazione dura quanto la pagina Stripe (minimo 30 minuti, regola di Stripe).
+const RISERVA_MS = 10 * 60 * 1000;
+const PAGAMENTO_MIN = 31;
 
 export async function negozio(request, env, pathname) {
   try {
-    if (pathname === "/api/negozio/prodotti" && request.method === "GET") return await prodottiPubblici(env);
+    if (pathname === "/api/negozio/prodotti" && request.method === "GET") return await prodottiPubblici(request, env);
+    if (pathname === "/api/negozio/riserva" && request.method === "POST") return await riserva(request, env);
+    if (pathname === "/api/negozio/annulla" && request.method === "POST") return await annulla(request, env);
     if (pathname === "/api/negozio/stato" && request.method === "GET") return await stato(env);
     if (pathname === "/api/negozio/prova-email" && request.method === "GET") return await provaEmail(request, env);
     if (pathname === "/api/negozio/checkout" && request.method === "POST") return await checkout(request, env);
@@ -83,9 +90,122 @@ async function caricaProdotti(env) {
     }));
 }
 
-async function prodottiPubblici(env) {
-  const prodotti = (await caricaProdotti(env)).map(({ priceId, ...p }) => p);
-  return Response.json({ prodotti }, { headers: { "Cache-Control": "no-store" } });
+async function prodottiPubblici(request, env) {
+  const cliente = idCliente(new URL(request.url).searchParams.get("cliente"));
+  return Response.json(await lista(env, cliente), { headers: { "Cache-Control": "no-store" } });
+}
+
+/* ---------- prenotazioni del carrello ---------- */
+
+let tabellaPronta = false;
+async function tabella(env) {
+  if (!env.STATS) return false;
+  if (!tabellaPronta) {
+    await env.STATS.prepare("CREATE TABLE IF NOT EXISTS prenotazioni (cliente TEXT NOT NULL, prodotto TEXT NOT NULL, quantita INTEGER NOT NULL, scade INTEGER NOT NULL, sessione TEXT, PRIMARY KEY (cliente, prodotto))").run();
+    tabellaPronta = true;
+  }
+  return true;
+}
+
+async function prenotazioni(env) {
+  if (!(await tabella(env))) return [];
+  await env.STATS.prepare("DELETE FROM prenotazioni WHERE scade < ?1").bind(Date.now()).run();
+  const r = await env.STATS.prepare("SELECT cliente, prodotto, quantita, scade, sessione FROM prenotazioni").all();
+  return r.results || [];
+}
+
+function idCliente(v) {
+  const s = String(v || "");
+  return /^[A-Za-z0-9-]{8,64}$/.test(s) ? s : "";
+}
+
+// Prodotti con i pezzi disponibili per questo cliente (scorta meno i pezzi riservati dagli altri) e la sua prenotazione.
+async function lista(env, cliente, prodotti, pren) {
+  prodotti = prodotti || (await caricaProdotti(env));
+  pren = pren || (await prenotazioni(env));
+  const out = prodotti.map(({ priceId, ...p }) => {
+    const altri = pren.filter((r) => r.prodotto === p.id && r.cliente !== cliente).reduce((t, r) => t + r.quantita, 0);
+    return { ...p, disponibili: Math.max(0, p.disponibili - altri), riservati: altri };
+  });
+  const mie = cliente ? pren.filter((r) => r.cliente === cliente) : [];
+  const mia = mie.length
+    ? { scade: mie[0].scade, pagamento: !!mie[0].sessione, articoli: Object.fromEntries(mie.map((r) => [r.prodotto, r.quantita])) }
+    : null;
+  return { prodotti: out, mia, adesso: Date.now() };
+}
+
+async function chiudiSessione(env, mie) {
+  const id = mie.find((r) => r.sessione)?.sessione;
+  if (id) await stripe(env, "POST", `/checkout/sessions/${id}/expire`).catch(() => {});
+}
+
+// Il carrello del cliente diventa la sua prenotazione (sostituisce quella precedente).
+async function riserva(request, env) {
+  let corpo;
+  try {
+    corpo = await request.json();
+  } catch {
+    return Response.json({ errore: "Richiesta non valida." }, { status: 400 });
+  }
+  const cliente = idCliente(corpo.cliente);
+  if (!cliente) return Response.json({ errore: "Richiesta non valida." }, { status: 400 });
+  const richiesti = Array.isArray(corpo.articoli) ? corpo.articoli.slice(0, 20) : [];
+  const prodotti = await caricaProdotti(env);
+  if (!(await tabella(env))) return Response.json({ ...(await lista(env, cliente, prodotti)), mia: null }, { headers: { "Cache-Control": "no-store" } });
+  const perId = new Map(prodotti.map((p) => [p.id, p]));
+  const ora = Date.now();
+  const prima = await prenotazioni(env);
+  const mie = prima.filter((r) => r.cliente === cliente);
+  // Se il cliente torna dalla pagina di pagamento senza pagare, quella pagina si chiude e riparte il tempo.
+  if (mie.some((r) => r.sessione)) await chiudiSessione(env, mie);
+  const scade = mie.length && !mie.some((r) => r.sessione) ? mie[0].scade : ora + RISERVA_MS;
+
+  const righe = [];
+  let errore = "";
+  for (const r of richiesti) {
+    const p = perId.get(String(r.id));
+    const q = parseInt(r.quantita, 10);
+    if (!p) { errore = "Un articolo non è più in vendita."; continue; }
+    if (!Number.isInteger(q) || q < 1) continue;
+    righe.push({ p, q: Math.min(q, MAX_PEZZI) });
+  }
+  const db = env.STATS;
+  await db.prepare("DELETE FROM prenotazioni WHERE cliente = ?1").bind(cliente).run();
+  for (const { p, q } of righe) {
+    // Inserisce solo se, con i pezzi già riservati dagli altri, ce ne sono abbastanza.
+    const res = await db.prepare(
+      "INSERT INTO prenotazioni (cliente, prodotto, quantita, scade) SELECT ?1, ?2, ?3, ?4 " +
+      "WHERE (SELECT COALESCE(SUM(quantita), 0) FROM prenotazioni WHERE prodotto = ?2 AND cliente <> ?1 AND scade >= ?5) + ?3 <= ?6"
+    ).bind(cliente, p.id, q, scade, ora, p.disponibili).run();
+    if (!res.meta || !res.meta.changes) {
+      const altri = prima.filter((x) => x.prodotto === p.id && x.cliente !== cliente).reduce((t, x) => t + x.quantita, 0);
+      const liberi = Math.max(0, p.disponibili - altri);
+      errore = liberi
+        ? `Di "${p.nome}" ne puoi prenotare al massimo ${liberi}.`
+        : altri ? `"${p.nome}" è appena stato messo nel carrello da un altro cliente. Riprova tra qualche minuto.` : `"${p.nome}" è esaurito.`;
+      if (liberi) {
+        await db.prepare("INSERT INTO prenotazioni (cliente, prodotto, quantita, scade) VALUES (?1, ?2, ?3, ?4)").bind(cliente, p.id, Math.min(q, liberi), scade).run();
+      }
+    }
+  }
+  const out = await lista(env, cliente, prodotti);
+  return Response.json(errore ? { ...out, errore } : out, { status: errore ? 409 : 200, headers: { "Cache-Control": "no-store" } });
+}
+
+// Il cliente torna dalla pagina di pagamento senza pagare: si chiude quella pagina e ha di nuovo 10 minuti.
+async function annulla(request, env) {
+  let corpo = {};
+  try { corpo = await request.json(); } catch {}
+  const cliente = idCliente(corpo.cliente);
+  if (!cliente) return Response.json({ errore: "Richiesta non valida." }, { status: 400 });
+  if (await tabella(env)) {
+    const mie = (await prenotazioni(env)).filter((r) => r.cliente === cliente);
+    if (mie.some((r) => r.sessione)) {
+      await chiudiSessione(env, mie);
+      await env.STATS.prepare("UPDATE prenotazioni SET scade = ?1, sessione = NULL WHERE cliente = ?2").bind(Date.now() + RISERVA_MS, cliente).run();
+    }
+  }
+  return Response.json(await lista(env, cliente), { headers: { "Cache-Control": "no-store" } });
 }
 
 function euroInCentesimi(v) {
@@ -109,6 +229,13 @@ async function checkout(request, env) {
   const richiesti = Array.isArray(corpo.articoli) ? corpo.articoli.slice(0, 20) : [];
   if (!richiesti.length) return Response.json({ errore: "Il carrello è vuoto." }, { status: 400 });
 
+  const cliente = idCliente(corpo.cliente);
+  const conPrenotazioni = await tabella(env);
+  const pren = conPrenotazioni ? await prenotazioni(env) : [];
+  const mie = pren.filter((r) => r.cliente === cliente);
+  if (conPrenotazioni && (!cliente || !mie.length)) {
+    return Response.json({ errore: "Il tempo per completare l’acquisto (10 minuti) è scaduto e gli articoli sono tornati disponibili. Rimettili nel carrello se sono ancora liberi.", codice: "SCADUTA" }, { status: 409 });
+  }
   const perId = new Map((await caricaProdotti(env)).map((p) => [p.id, p]));
   const righe = [];
   let pezzi = 0;
@@ -117,6 +244,10 @@ async function checkout(request, env) {
     const q = parseInt(r.quantita, 10);
     if (!p) return Response.json({ errore: "Un articolo del carrello non è più in vendita. Aggiorna la pagina." }, { status: 400 });
     if (!Number.isInteger(q) || q < 1 || q > MAX_PEZZI) return Response.json({ errore: `Quantità non valida per "${p.nome}".` }, { status: 400 });
+    const mio = mie.find((x) => x.prodotto === p.id);
+    if (conPrenotazioni && (!mio || q > mio.quantita)) {
+      return Response.json({ errore: `"${p.nome}" non è più riservato per te: aggiorna il carrello.`, codice: "SCADUTA" }, { status: 409 });
+    }
     if (q > p.disponibili) {
       return Response.json({ errore: p.disponibili ? `Di "${p.nome}" ne restano solo ${p.disponibili}.` : `"${p.nome}" è esaurito.` }, { status: 409 });
     }
@@ -136,8 +267,9 @@ async function checkout(request, env) {
     "payment_method_types[0]": "card",
     "phone_number_collection[enabled]": "true",
     success_url: `${sito}/?ordine=ok#negozio`,
-    cancel_url: `${sito}/#negozio`,
-    expires_at: String(Math.floor(Date.now() / 1000) + 31 * 60),
+    cancel_url: `${sito}/?annullato=1#negozio`,
+    expires_at: String(Math.floor(Date.now() / 1000) + PAGAMENTO_MIN * 60),
+    "metadata[cliente]": cliente,
     "metadata[consegna]": consegna,
     "metadata[articoli]": righe.map((r) => `${r.p.id}:${r.q}`).join(","),
     "shipping_options[0][shipping_rate_data][type]": "fixed_amount",
@@ -161,7 +293,12 @@ async function checkout(request, env) {
     params["shipping_options[0][shipping_rate_data][fixed_amount][amount]"] = "0";
   }
 
+  if (mie.some((r) => r.sessione)) await chiudiSessione(env, mie);
   const s = await stripe(env, "POST", "/checkout/sessions", params);
+  // Mentre il cliente è sulla pagina di pagamento la prenotazione dura quanto quella pagina.
+  if (conPrenotazioni) {
+    await env.STATS.prepare("UPDATE prenotazioni SET scade = ?1, sessione = ?2 WHERE cliente = ?3").bind((s.expires_at || 0) * 1000 + 60000, s.id, cliente).run();
+  }
   return Response.json({ url: s.url });
 }
 
@@ -173,6 +310,10 @@ async function webhook(request, env) {
     return new Response("Firma non valida", { status: 400 });
   }
   const evento = JSON.parse(corpo);
+  if (evento.type === "checkout.session.expired" && (await tabella(env))) {
+    await env.STATS.prepare("DELETE FROM prenotazioni WHERE sessione = ?1").bind(evento.data.object.id).run();
+    return new Response("ok");
+  }
   if (evento.type !== "checkout.session.completed") return new Response("ok");
   // Si rilegge la sessione con la versione API del Worker: il formato non dipende da quella del webhook.
   const s = await stripe(env, "GET", `/checkout/sessions/${evento.data.object.id}`);
@@ -201,6 +342,8 @@ async function webhook(request, env) {
     else if (dopo <= soglia) avvisi.push(`Scorte basse: "${p.name}", ne restano ${dopo}.`);
   }
   if (s.payment_intent) await stripe(env, "POST", `/payment_intents/${s.payment_intent}`, { "metadata[scorte_aggiornate]": "si" });
+  // La scorta è già scalata: la prenotazione del cliente non serve più.
+  if (await tabella(env)) await env.STATS.prepare("DELETE FROM prenotazioni WHERE sessione = ?1 OR cliente = ?2").bind(s.id, idCliente(s.metadata.cliente) || "-").run();
 
   const c = s.customer_details || {};
   const sp = s.shipping_details || (s.collected_information && s.collected_information.shipping_details) || {};
