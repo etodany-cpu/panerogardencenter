@@ -359,12 +359,12 @@ header .wrap{justify-content:flex-start}
 @media (prefers-reduced-motion:reduce){.side,.hamb span{transition:none}}
 
 /* ===== Ingrandimento delle foto ===== */
-#prodotti .pimg.ph,.mpic-w{cursor:zoom-in}
+#prodotti .pimg.ph,#ngz-grid .pimg.ph,.mpic-w{cursor:zoom-in}
 .mpic-w{display:block;flex:none;width:76px;height:76px;border-radius:20px;overflow:hidden;background:#fff;box-shadow:0 10px 24px -12px rgba(0,0,0,.6)}
 .mpic-w .mpic{width:100%;height:100%;border-radius:0;box-shadow:none}
-#prodotti .pimg.ph img,.mpic-w img{transition:transform .3s ease}
+#prodotti .pimg.ph img,#ngz-grid .pimg.ph img,.mpic-w img{transition:transform .3s ease}
 @media (hover:hover) and (pointer:fine){
- #prodotti .pimg.ph img.zz{transform:scale(1.9)}
+ #prodotti .pimg.ph img.zz,#ngz-grid .pimg.ph img.zz{transform:scale(1.9)}
  .mpic-w img.zz{transform:scale(1.8)}}
 .lbox{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
  padding:max(20px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(20px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:rgba(4,12,7,.94);cursor:zoom-out}
@@ -375,7 +375,7 @@ header .wrap{justify-content:flex-start}
 body.lb-on{overflow:hidden}
 .lbox[hidden]{display:none}
 @media(max-width:779px){.mpic-w{width:60px;height:60px}}
-@media (prefers-reduced-motion:reduce){#prodotti .pimg.ph img,.mpic-w img{transition:none}}
+@media (prefers-reduced-motion:reduce){#prodotti .pimg.ph img,#ngz-grid .pimg.ph img,.mpic-w img{transition:none}}
 
 /* ===== Scheda prodotto ===== */
 .cbtn{display:flex;flex-wrap:wrap;gap:8px}
@@ -1110,7 +1110,7 @@ function initLogo(){var lt=$("logolt");if(!lt||!CFG.logo)return;var i=new Image(
    if(p[k+3]>0&&mn>150&&mx-mn<45){p[k]=ink[0];p[k+1]=ink[1];p[k+2]=ink[2]}}
   g.putImageData(d,0,0);lt.src=c.toDataURL("image/png")}catch(e){}};i.src=CFG.logo}
 function initZoom(){
- var SEL="#prodotti .pimg.ph, .mhead .mpic-w",fine=window.matchMedia&&matchMedia("(hover:hover) and (pointer:fine)").matches;
+ var SEL="#prodotti .pimg.ph, #ngz-grid .pimg.ph, .mhead .mpic-w",fine=window.matchMedia&&matchMedia("(hover:hover) and (pointer:fine)").matches;
  function img(box){return box.id==="car"?box.querySelector("img.on")||box.querySelector("img"):box.querySelector("img")}
  if(fine){
   document.addEventListener("mousemove",function(e){var box=e.target.closest&&e.target.closest(SEL);if(!box)return;var im=img(box);if(!im)return;
