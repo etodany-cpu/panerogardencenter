@@ -1424,7 +1424,7 @@ function initNegozio(){
   b.disabled=true;b.textContent="Invio…";
   var fd=new FormData(f);fd.append("access_key",key);fd.append("subject","Richiesta costo spedizione – L’angolo delle occasioni");fd.append("from_name",CFG.ditta||"Negozio online");fd.append("Articoli",el);fd.append("Consegna",CONS==="isole"?"Spedizione nelle isole":"Spedizione in Italia (più articoli)");
   fetch("https://api.web3forms.com/submit",{method:"POST",body:fd,headers:{Accept:"application/json"}}).then(function(r){return r.json()})
-   .then(function(d){if(String(d.success)!=="true")throw new Error();riserva({});aggiorna('<div class="ngz-m"><b>Richiesta inviata!</b> Ti rispondiamo al più presto con il costo di spedizione e il link per pagare.</div>')})
+   .then(function(d){if(String(d.success)!=="true")throw new Error();var ok='<div class="ngz-m"><b>Richiesta inviata!</b> Ti rispondiamo al più presto con il costo di spedizione e il link per pagare.</div>';busy=false;riserva({},function(){aggiorna(ok)});aggiorna(ok)})
    .catch(function(){b.disabled=false;b.textContent="Richiedi il costo di spedizione";alert("Invio non riuscito. Riprova o chiamaci al "+(CFG.telefono||"")+".")})}
 
  function condizioni(){var c=CFG,dati=esc(c.ditta||"")+" – "+esc(c.indirizzo||"")+(c.piva?" – P.IVA "+esc(c.piva):"")+" – Tel. "+esc(c.telefono||"")+" – Email "+esc(c.email||"");
