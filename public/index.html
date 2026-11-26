@@ -763,6 +763,24 @@ header .hcall{position:relative;z-index:4}
 @keyframes ngzF{from{opacity:0}to{opacity:1}}
 @keyframes ngzS{from{opacity:0;transform:translateY(24px) scale(.96)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.ngz-pop,.ngz-pop>div{animation:none}}
+@media(max-width:1024px){
+ .ngz-pop{padding:12px}
+ .ngz-pop>div{width:min(380px,100%);border-radius:18px}
+ .ngz-pop .skx{top:8px;right:8px;width:32px;height:32px;font-size:22px}
+ .ngz-pop .ph{padding:14px 44px 12px}
+ .ngz-pop .ph .tg{font-size:.66rem;padding:3px 9px;margin-bottom:6px}
+ .ngz-pop h3{font-size:1.2rem;margin-bottom:4px}
+ .ngz-pop .ph p{font-size:.82rem;line-height:1.35}
+ .ngz-pop .pl{gap:8px;padding:12px 14px 2px}
+ .ngz-pop .pi{gap:10px;padding:7px;border-radius:12px}
+ .ngz-pop .pi img,.ngz-pop .pi .ic{width:54px;height:54px;border-radius:9px;font-size:22px}
+ .ngz-pop .pi b{font-size:.86rem}
+ .ngz-pop .pi .pr{font-size:1rem;margin-top:1px}
+ .ngz-pop .pi small{font-size:.72rem}
+ .ngz-pop .pa{padding:10px 14px 12px}
+ .ngz-pop .pa .btn{font-size:.95rem;padding:10px 16px}
+ .ngz-pop .pa button.lk{margin-top:6px;font-size:.8rem}}
+@media(max-width:380px){.ngz-pop .ph p{display:none}}
 .ngz-dlg>div{position:relative;width:min(760px,100%);max-height:100%;overflow:auto;border-radius:24px;background:var(--card);color:var(--fg);padding:28px 26px}
 .ngz-dlg h3{margin:0 40px 10px 0;font-family:var(--fd)}
 .ngz-dlg h4{margin:18px 0 4px;font-family:var(--fd)}
